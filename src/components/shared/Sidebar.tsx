@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { X } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '../ui/sheet';
+import { cn } from '@/lib/utils';
 
 const Sidebar:React.FC<SidebarProps> = ({isOpen, setIsOpen}): React.JSX.Element => {
 
@@ -40,7 +41,7 @@ const Sidebar:React.FC<SidebarProps> = ({isOpen, setIsOpen}): React.JSX.Element 
 
         return (
 
-            <div className='flex justify-start gap-5 flex-col'>
+            <div className={cn("flex justify-start gap-5 flex-col")}>
 
                 {
 
@@ -51,7 +52,7 @@ const Sidebar:React.FC<SidebarProps> = ({isOpen, setIsOpen}): React.JSX.Element 
                             <Link
                                 key={index}
                                 href={navItem}
-                                className='text-white text-2xl cursor-pointer'
+                                className={cn('text-white text-2xl cursor-pointer')}
 
                             >
 

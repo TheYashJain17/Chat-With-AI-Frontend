@@ -27,8 +27,8 @@ const Header = (): React.JSX.Element => {
                         className='h-10 w-10 rounded-2xl bg-cover'
 
                     />
-                    <span className='font-bold text-black md:block hidden'>ChatWithDocs AI</span>
-                    <span className='font-bold text-black md:hidden'>CWD AI</span>
+                    <span className={cn('font-bold text-black md:block hidden')}>ChatWithDocs AI</span>
+                    <span className={cn('font-bold text-black md:hidden')}>CWD AI</span>
 
                 </div>
 
