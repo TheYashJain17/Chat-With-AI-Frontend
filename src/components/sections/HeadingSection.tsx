@@ -4,9 +4,9 @@ import { cn } from '@/lib/utils'
 
 const HeadingSection = (): React.JSX.Element => {
   return (
-    <div className={cn("flex items-center justify-center gap-5 flex-col w-full")}>
+    <div className={cn("flex items-center justify-center gap-3 flex-col w-full")}>
 
-        <div className={cn("flex items-center justify-center w-full px-5 py-2")}>
+        <div className={cn("flex items-center justify-center w-full px-3 py-2")}>
 
             <h1 className={cn("font-bold text-5xl text-center hidden lg:block")}>Transform Your Conversations <br/> With Smart <span className={cn("text-landing-blue")}>AI Chatbots!</span></h1>
             <h1 className={cn("font-bold text-4xl text-center hidden md:block lg:hidden")}>Transform Your Conversations <br/>  With Smart <span className={cn("text-landing-blue")}>AI Chatbots!</span></h1>

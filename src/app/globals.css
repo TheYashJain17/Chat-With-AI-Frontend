@@ -43,6 +43,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --color-landing-blue: var(--landing-blue);
+  --color-landing-grey: var(--landing-grey);
   --font-poppins: Poppins, sans-serif;
 }
 
@@ -80,6 +81,8 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --landing-blue: oklch(0.6835 0.2234 261.65);
+  --landing-grey: oklch(0.572 0.032 259.45);
+
 }
 
 .dark {
