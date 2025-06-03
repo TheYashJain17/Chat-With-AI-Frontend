@@ -1,3 +1,4 @@
+import BeneficialFor from '@/components/layout/BeneficialFor'
 import Features from '@/components/layout/Features'
 import HeadingSection from '@/components/sections/HeadingSection'
 import Header from '@/components/shared/Header'
@@ -15,6 +16,8 @@ const page = (): React.JSX.Element => {
         <HeadingSection/>
 
         <Features/>
+
+        <BeneficialFor/>
 
       </div>
 

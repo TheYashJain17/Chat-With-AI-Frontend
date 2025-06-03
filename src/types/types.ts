@@ -13,3 +13,12 @@ export interface SidebarProps{
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 
 }
+
+
+export interface BeneficialForDataProps{
+
+    title: string;
+    description: string;
+    image: string;
+
+}
