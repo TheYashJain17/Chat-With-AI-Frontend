@@ -22,3 +22,19 @@ export interface BeneficialForDataProps{
     image: string;
 
 }
+
+export interface PricingModalDataProps{
+
+    title: string;
+    type: string;
+    description: string;
+    features: string[];
+
+}
+
+export interface PricingModalProps{
+
+    pricingModalData: PricingModalDataProps
+    index: number;
+
+}
