@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const FAQSection = (): React.JSX.Element => {
   return (
-    <div className={cn("mb-40 flex justify-between flex-col md:flex-row gap-6 md:gap-10 max-w-[70rem] w-full")}>
+    <div className={cn("flex justify-between flex-col md:flex-row gap-6 md:gap-10 max-w-[70rem] w-full")}>
 
       <div className={cn("flex justify-start flex-col gap-5")}>
 
