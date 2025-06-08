@@ -7,7 +7,7 @@ const GetStartedSection = (): React.JSX.Element => {
     return (
 
 
-        <div className={cn("flex items-center justify-center mt-20 mb-40")}>
+        <div className={cn("flex items-center justify-center mt-10")}>
 
             <div className={cn("items-center justify-center mx-5 absolute hidden sm:flex")}>
 

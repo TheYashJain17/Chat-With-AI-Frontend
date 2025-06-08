@@ -4,6 +4,7 @@ import FAQSection from '@/components/sections/FAQSection'
 import GetStartedSection from '@/components/sections/GetStartedSection'
 import HeadingSection from '@/components/sections/HeadingSection'
 import PricingSection from '@/components/sections/PricingSection'
+import Footer from '@/components/shared/Footer'
 import Header from '@/components/shared/Header'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -27,6 +28,8 @@ const page = (): React.JSX.Element => {
         <FAQSection/>
 
         <GetStartedSection/>
+
+        <Footer/>
 
       </div>
 
