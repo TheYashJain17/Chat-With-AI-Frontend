@@ -42,10 +42,10 @@ const GetStartedSection = (): React.JSX.Element => {
             </div>
 
 
-            <div className={cn("flex items-center justify-center flex-col gap-5 relative mx-5")}>
+            <div className={cn("flex items-center justify-center flex-col gap-5 relative mx-5 px-2 z-10")}>
 
                 <h1 className={cn("text-white font-bold text-xl sm:text-4xl text-center")}>Get Started with <br /> ChatBuddy AI Today!</h1>
-                <span className={cn("text-sm sm:text-base text-white text-center")}>Unlock seamless automation, instant support, and smarter conversations—<br />all in one AI-powered assistant.</span>
+                <span className={cn("text-base text-white text-center w-3/5 sm:w-full")}>Unlock seamless automation, instant support, and smarter conversations—<br />all in one AI-powered assistant.</span>
                 <Button size={"trial"} variant={"trial"} className={cn("bg-white text-base sm:text-lg font-semibold rounded-3xl text-landing-blue2")}>Try 7-Days Free Trial</Button>
 
             </div>

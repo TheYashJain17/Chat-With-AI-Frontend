@@ -27,8 +27,7 @@ const Header = (): React.JSX.Element => {
                         className='h-10 w-10 rounded-2xl bg-cover'
 
                     />
-                    <span className={cn('font-bold text-black md:block hidden')}>ChatWithDocs AI</span>
-                    <span className={cn('font-bold text-black md:hidden')}>CWD AI</span>
+                    <span className={cn('font-bold text-black')}>ChatWithDocs AI</span>
 
                 </div>
 
@@ -49,7 +48,7 @@ const Header = (): React.JSX.Element => {
 
                 <div className={cn("flex items-center justify-center gap-2")}>
 
-                    <div className={cn("flex items-center justify-center h-full")}>
+                    <div className={cn("items-center justify-center h-full hidden md:flex")}>
 
                         <Button variant={"trial"} size={"trial"}>Start Your Free Trial</Button>
 
