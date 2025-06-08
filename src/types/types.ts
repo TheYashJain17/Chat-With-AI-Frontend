@@ -38,3 +38,10 @@ export interface PricingModalProps{
     index: number;
 
 }
+
+export interface FAQData{
+
+    title: string;
+    description: string;
+
+}

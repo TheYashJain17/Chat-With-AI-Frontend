@@ -1,5 +1,6 @@
 import BeneficialFor from '@/components/layout/BeneficialFor'
 import Features from '@/components/layout/Features'
+import FAQSection from '@/components/sections/FAQSection'
 import HeadingSection from '@/components/sections/HeadingSection'
 import PricingSection from '@/components/sections/PricingSection'
 import Header from '@/components/shared/Header'
@@ -21,6 +22,8 @@ const page = (): React.JSX.Element => {
         <BeneficialFor/>
 
         <PricingSection/>
+
+        <FAQSection/>
 
       </div>
 

@@ -74,9 +74,9 @@ const PricingSection = (): React.JSX.Element => {
 
             PricingModalData?.map((modalData: PricingModalDataProps, index: number) => (
 
-              <div className={cn("flex items-center justify-center w-full")}>
+              <div key={index} className={cn("flex items-center justify-center w-full")}>
 
-                  <PriceModal key={index} pricingModalData={modalData} index={index}/>
+                  <PriceModal pricingModalData={modalData} index={index}/>
 
               </div>
 
