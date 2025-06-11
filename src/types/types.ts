@@ -45,3 +45,10 @@ export interface FAQData{
     description: string;
 
 }
+
+export interface LogInProps{
+
+    email: string;
+    password: string;
+
+}
