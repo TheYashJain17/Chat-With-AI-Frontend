@@ -52,3 +52,12 @@ export interface LogInProps{
     password: string;
 
 }
+
+export interface AuthStateType{
+
+    token: string | null;
+    setToken: (token: string) => void;
+    clearToken: () => void;
+
+
+}

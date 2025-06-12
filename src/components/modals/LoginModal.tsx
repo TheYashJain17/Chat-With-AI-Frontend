@@ -13,6 +13,7 @@ import { logInUser } from '@/services/auth'
 import { AxiosResponse } from 'axios'
 import { useRouter } from 'next/navigation'
 import { successMsg } from '@/utils/utilities'
+import { useAuthStore } from '@/store/store'
 
 
 
@@ -20,9 +21,11 @@ const LoginModal = (): React.JSX.Element => {
 
     const {register, handleSubmit, reset, formState: {errors, isSubmitting}} = useForm<LogInProps>();
     const router = useRouter();
+    const {token, setToken} = useAuthStore();
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
+console.log("The token from zustand is", token);
 
     // const logInUser = async({email, password}: LogInProps): Promise<void> => {
 
@@ -54,7 +57,10 @@ const LoginModal = (): React.JSX.Element => {
 
             if(response?.data?.success){
 
-                localStorage.setItem("token", response?.data?.data?.data?.loginToken);
+                const token = response?.data?.data?.data?.loginToken;
+
+                localStorage.setItem("token", token);
+                setToken(token);
                 
                 successMsg("Login Successfull");
 
