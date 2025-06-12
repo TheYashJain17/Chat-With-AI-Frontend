@@ -2,7 +2,7 @@ import {LogInProps} from "@/types/types";
 import { axiosInstance } from "@/utils/instances/axiosInstance";
 import { errorMsg } from "@/utils/utilities";
 
-const handleLogInUser = async({email, password}: LogInProps): Promise<void> => {
+const logInUser = async({email, password}: LogInProps): Promise<object | void> => {
 
     try {
         
@@ -27,6 +27,11 @@ const handleLogInUser = async({email, password}: LogInProps): Promise<void> => {
 
         console.log(response?.data);
 
+        // console.log(response?.data?.data?.data?.loginToken);
+
+
+        return response;
+
 
     } catch (error) {
 
@@ -37,4 +42,4 @@ const handleLogInUser = async({email, password}: LogInProps): Promise<void> => {
 }
 
 
-export {handleLogInUser}
+export {logInUser}

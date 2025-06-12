@@ -9,13 +9,17 @@ import { Button } from '../ui/button'
 import { IoMdEye, IoIosEyeOff } from "react-icons/io";
 import {useForm} from "react-hook-form";
 import { LogInProps } from '@/types/types'
-import { handleLogInUser } from '@/services/auth'
+import { logInUser } from '@/services/auth'
+import { AxiosResponse } from 'axios'
+import { useRouter } from 'next/navigation'
+import { successMsg } from '@/utils/utilities'
 
 
 
 const LoginModal = (): React.JSX.Element => {
 
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<LogInProps>();
+    const {register, handleSubmit, reset, formState: {errors, isSubmitting}} = useForm<LogInProps>();
+    const router = useRouter();
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -41,6 +45,40 @@ const LoginModal = (): React.JSX.Element => {
     //     }
 
     // }
+
+    const handleLogInUser = async(data: LogInProps): Promise<void> => {
+
+        try {
+
+            const response = await logInUser(data) as AxiosResponse;
+
+            if(response?.data?.success){
+
+                localStorage.setItem("token", response?.data?.data?.data?.loginToken);
+                
+                successMsg("Login Successfull");
+
+                setTimeout(() => {
+
+                    router.push("/chat");
+
+                }, 3000)
+
+            }
+            
+        } catch (error) {
+
+            console.log(error);
+            
+        }finally{
+
+            reset();
+
+        }
+
+        
+
+    }
 
     return (
 

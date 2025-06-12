@@ -1,8 +1,10 @@
 import axios from "axios";
 
-export const axiosInstance = axios.create({
+const url: string = process.env.NEXT_PUBLIC_BACKEND_BASE_URL as string;
 
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL,
+const baseConfig = {
+
+    baseURL: url,
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
@@ -10,8 +12,30 @@ export const axiosInstance = axios.create({
     
     }  
 
-})
+}
 
+export const publicAxiosInstance = axios.create(baseConfig)
+
+
+publicAxiosInstance.interceptors.response.use(
+
+    (response) => response,
+    (error) => {
+
+        if(error?.response?.status === 401){
+
+            return Promise.reject("Your Session Expired , Please Login again")
+
+        }
+
+        return Promise.reject(error)
+
+    }
+
+)
+
+
+export const axiosInstance = axios.create(baseConfig)
 
 axiosInstance.interceptors.request.use(
 
@@ -30,23 +54,5 @@ axiosInstance.interceptors.request.use(
     },
 
     (error) => Promise.reject(error)
-
-)
-
-
-axiosInstance.interceptors.response.use(
-
-    (response) => response,
-    (error) => {
-
-        if(error?.response?.status === 401){
-
-            return Promise.reject("Your Session Expired , Please Login again")
-
-        }
-
-        return Promise.reject(error)
-
-    }
 
 )
