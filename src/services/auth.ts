@@ -1,8 +1,9 @@
-import {LogInProps} from "@/types/types";
+import {LogInProps, SignUpProps} from "@/types/types";
 import { axiosInstance } from "@/utils/instances/axiosInstance";
 import { errorMsg } from "@/utils/utilities";
+import { AxiosResponse } from "axios";
 
-const logInUser = async({email, password}: LogInProps): Promise<object | void> => {
+const logInUser = async({email, password}: LogInProps): Promise<AxiosResponse | void> => {
 
     try {
         
@@ -40,6 +41,45 @@ const logInUser = async({email, password}: LogInProps): Promise<object | void> =
     }
 
 }
+// emailAddress, userName, password
+const signUpUser = async({email, username, password, confirmpassword}: SignUpProps): Promise<AxiosResponse |  void> => {
+
+    try {   
+        
+        if(!email || !username || !password){
+
+            errorMsg("Please Provide All Required Fields");
+            return;
+
+        }
+
+        if(password !== confirmpassword){
+
+            errorMsg("Password And confirm Password Must Be Same");
+            return;
+
+        }
+
+        const body = {
+
+            emailAddress: email,
+            userName: username,
+            password: password
+
+        }
+
+        const response = await axiosInstance?.post("/user/signup", body);
+
+        return response;
 
 
-export {logInUser}
+    } catch (error) {
+
+        console.log(error);
+        
+    }
+
+} 
+
+
+export {logInUser, signUpUser}

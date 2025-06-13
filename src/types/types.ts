@@ -53,11 +53,19 @@ export interface LogInProps{
 
 }
 
+export interface SignUpProps{
+
+    email: string;
+    username: string;
+    password: string;
+    confirmpassword: string;
+
+}
+
 export interface AuthStateType{
 
     token: string | null;
     setToken: (token: string) => void;
     clearToken: () => void;
-
 
 }

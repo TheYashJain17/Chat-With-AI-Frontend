@@ -25,7 +25,7 @@ const LoginModal = (): React.JSX.Element => {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-console.log("The token from zustand is", token);
+    console.log("The token from zustand is", token);
 
     // const logInUser = async({email, password}: LogInProps): Promise<void> => {
 
