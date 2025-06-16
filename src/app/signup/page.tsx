@@ -25,7 +25,7 @@ const page = (): React.JSX.Element => {
                 alt='Login BG'
                 height={1000}
                 width={1000}
-                className={cn("max-w-[55rem] w-full h-[35rem] border-2 border-landing-blue2 rounded-2xl shadow-all-sides")}
+                className={cn("max-w-[58rem] w-full h-[44rem] border-2 border-landing-blue2 rounded-2xl shadow-all-sides")}
 
             />
 

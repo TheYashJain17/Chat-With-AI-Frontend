@@ -29,8 +29,8 @@ export const POST = async(req: NextRequest): Promise<Response | void> => {
                 secure: true,
                 auth: {
 
-                    user: "",
-                    pass: ""
+                    user: process.env.NEXT_PUBLIC_EMAIL_ID,
+                    pass: process.env.NEXT_PUBLIC_EMAIL_PASSWORD
 
                 }
 

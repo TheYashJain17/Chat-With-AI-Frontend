@@ -81,5 +81,39 @@ const signUpUser = async({email, username, password, confirmpassword}: SignUpPro
 
 } 
 
+const requestOtp = async(emailAddress: string): Promise<AxiosResponse | void> => {
 
-export {logInUser, signUpUser}
+    try {
+        
+        if(!emailAddress){
+
+            errorMsg("Please Provide Email Address");
+            return;
+
+        }
+
+        const body = {
+
+            emailAddress: emailAddress
+
+        }
+
+        const response = await axiosInstance.post("/user/request/otp", body);
+
+        // console.log(response);
+
+        return response;
+
+
+
+
+    } catch (error) {
+
+        console.log(error);
+        
+    }
+
+}
+
+
+export {logInUser, signUpUser, requestOtp}
