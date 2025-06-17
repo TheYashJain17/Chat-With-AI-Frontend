@@ -16,6 +16,8 @@ const buttonVariants = cva(
           "cursor-pointer bg-landing-blue2 text-white hover:shadow-lg font-bold",
           login:
             "cursor-pointer bg-landing-blue2 text-white hover:shadow-lg font-bold",
+          signup:
+            "cursor-pointer bg-landing-blue2 text-white hover:shadow-lg font-bold",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -32,7 +34,8 @@ const buttonVariants = cva(
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
         icon: "size-9",
         trial: "h-[2.8rem] px-5 rounded-full",
-        login: "h-[2.8rem] px-5 rounded-2xl w-full"
+        login: "h-[2.8rem] px-5 rounded-2xl w-full",
+        signup: "h-[2.8rem] px-5 rounded-2xl w-full"
       },
     },
     defaultVariants: {

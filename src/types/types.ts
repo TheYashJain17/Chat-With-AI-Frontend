@@ -62,6 +62,13 @@ export interface SignUpProps{
 
 }
 
+export interface OtpVerificationProps{
+
+    value: string;
+    onChange: (value: string) => void;
+
+}
+
 export interface AuthStateType{
 
     token: string | null;

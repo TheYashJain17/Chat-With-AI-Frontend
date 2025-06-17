@@ -1,7 +1,7 @@
 import {LogInProps, SignUpProps} from "@/types/types";
 import { axiosInstance } from "@/utils/instances/axiosInstance";
 import { errorMsg } from "@/utils/utilities";
-import { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 
 const logInUser = async({email, password}: LogInProps): Promise<AxiosResponse | void> => {
 
@@ -115,5 +115,34 @@ const requestOtp = async(emailAddress: string): Promise<AxiosResponse | void> =>
 
 }
 
+const verifyOtp = async(emailAddress: string, otp: string): Promise<AxiosResponse | void> => {
 
-export {logInUser, signUpUser, requestOtp}
+    try {
+
+        if(!emailAddress || !otp){
+
+            errorMsg("Please Provide All Information");
+            return;
+
+        }
+
+        const body = {
+
+            emailAddress,
+            otp
+
+        }
+        
+        const response = await axiosInstance.post("/user/verify/otp", body);
+
+        return response;
+
+    } catch (error) {
+
+        console.log(error);
+        
+    }
+
+}
+
+export {logInUser, signUpUser, requestOtp, verifyOtp}
