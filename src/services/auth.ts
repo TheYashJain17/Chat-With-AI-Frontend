@@ -1,7 +1,7 @@
 import {LogInProps, SignUpProps} from "@/types/types";
 import { axiosInstance } from "@/utils/instances/axiosInstance";
 import { errorMsg } from "@/utils/utilities";
-import axios, { AxiosResponse } from "axios";
+import axios, { Axios, AxiosResponse } from "axios";
 
 const logInUser = async({email, password}: LogInProps): Promise<AxiosResponse | void> => {
 
@@ -41,7 +41,7 @@ const logInUser = async({email, password}: LogInProps): Promise<AxiosResponse | 
     }
 
 }
-// emailAddress, userName, password
+
 const signUpUser = async({email, username, password, confirmpassword}: SignUpProps): Promise<AxiosResponse |  void> => {
 
     try {   
@@ -145,4 +145,57 @@ const verifyOtp = async(emailAddress: string, otp: string): Promise<AxiosRespons
 
 }
 
-export {logInUser, signUpUser, requestOtp, verifyOtp}
+const checkRegisteredUser = async(emailAddress: string): Promise<AxiosResponse | void> => {
+
+    try {
+        
+        if(!emailAddress){
+
+            errorMsg("Please Provide Email Address");
+            return;
+
+        }
+
+        const response = await axiosInstance.get(`/user/verifyRegisteredUser/${encodeURIComponent(emailAddress)}`)
+
+        return response;
+
+    } catch (error) {
+
+        console.log(error);
+        
+    }
+
+}
+
+const resetPassword = async(emailAddress: string, password: string): Promise<AxiosResponse | void> => {
+
+    try {
+        
+        if(!emailAddress || !password){
+
+            errorMsg("Please Provide All Details");
+            return;
+
+        }
+
+        const body = {
+
+            emailAddress: emailAddress,
+            newPassword: password,
+
+        }
+
+        const response = await axiosInstance.post("/user/resetPassword", body);
+
+        return response;
+
+    } catch (error) {
+
+        console.log(error);
+        
+    }
+
+}
+
+export {logInUser, signUpUser, requestOtp, verifyOtp, resetPassword, checkRegisteredUser}
