@@ -37,6 +37,8 @@ const logInUser = async({email, password}: LogInProps): Promise<AxiosResponse | 
     } catch (error) {
 
         console.log(error);
+
+        throw error
         
     }
 
@@ -76,6 +78,8 @@ const signUpUser = async({email, username, password, confirmpassword}: SignUpPro
     } catch (error) {
 
         console.log(error);
+
+        throw error;
         
     }
 
@@ -110,6 +114,8 @@ const requestOtp = async(emailAddress: string): Promise<AxiosResponse | void> =>
     } catch (error) {
 
         console.log(error);
+
+        throw error;
         
     }
 
@@ -163,6 +169,7 @@ const checkRegisteredUser = async(emailAddress: string): Promise<AxiosResponse |
     } catch (error) {
 
         console.log(error);
+        // throw error;
         
     }
 

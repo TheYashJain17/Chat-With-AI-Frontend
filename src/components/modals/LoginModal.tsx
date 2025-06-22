@@ -10,9 +10,9 @@ import { IoMdEye, IoIosEyeOff } from "react-icons/io";
 import {useForm} from "react-hook-form";
 import { LogInProps } from '@/types/types'
 import { logInUser } from '@/services/auth'
-import { AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import { useRouter } from 'next/navigation'
-import { successMsg } from '@/utils/utilities'
+import { errorMsg, successMsg } from '@/utils/utilities'
 import { useAuthStore } from '@/store/store'
 
 
@@ -25,7 +25,7 @@ const LoginModal = (): React.JSX.Element => {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    console.log("The token from zustand is", token);
+    // console.log("The token from zustand is", token);
 
     // const logInUser = async({email, password}: LogInProps): Promise<void> => {
 
@@ -55,9 +55,16 @@ const LoginModal = (): React.JSX.Element => {
 
             const response = await logInUser(data) as AxiosResponse;
 
-            if(response?.data?.success){
+            console.log("the response is", response);
 
-                const token = response?.data?.data?.data?.loginToken;
+            if(!response?.data?.success){
+
+                errorMsg("Failed To Login, Please Try After Sometime");
+                return;
+
+            }
+
+            const token = response?.data?.data?.data?.loginToken;
 
                 localStorage.setItem("token", token);
                 setToken(token);
@@ -69,13 +76,17 @@ const LoginModal = (): React.JSX.Element => {
                     router.push("/chat");
 
                 }, 3000)
-
-            }
             
-        } catch (error) {
+        } catch (error: unknown) {
 
-            console.log(error);
-            
+            const err = error as AxiosError<{message: string}>
+
+            const errMsg = err?.response?.data?.message
+
+            console.log(errMsg);
+
+            errorMsg(errMsg as string)
+
         }finally{
 
             reset();
