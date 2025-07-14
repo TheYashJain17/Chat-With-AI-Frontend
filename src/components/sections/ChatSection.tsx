@@ -1,0 +1,187 @@
+"use client"
+
+import React, { FormEvent, useEffect, useRef, useState } from 'react'
+import { Input } from '../ui/input';
+import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
+
+import Image from 'next/image';
+
+type ChatMessage = {
+  id: number;
+  sender: "user" | "ai";
+  text: string;
+  timestamp: string;
+};
+
+const ChatSection = (): React.JSX.Element => {
+
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const handleSend = (event: React.FormEvent<HTMLFormElement>) => {
+
+    event?.preventDefault();
+
+    if (!input.trim()) return console.log("Please Provide Message");
+
+    const newMsg: ChatMessage = {
+
+      id: 2,
+      sender: "user",
+      text: input,
+      timestamp: new Date().toLocaleDateString(),
+
+    }
+
+    setMessages((prev) => [...prev, newMsg]);
+
+    setInput("");
+
+    setTimeout(() => {
+      const aiMsg: ChatMessage = {
+        id: 1,
+        sender: "ai",
+        // text: "This is a sample AI response. You can replace it with a real API call.",
+        text: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas corrupti odio, voluptas molestias harum praesentium sapiente esse! Labore in repellendus excepturi natus atque maxime velit eum error, veritatis quisquam voluptas, totam suscipit?",
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    }, 700);
+  };
+
+  useEffect(() => {
+
+    chatEndRef?.current?.scrollIntoView({ behavior: "smooth" })
+
+  }, [messages])
+
+  return (
+
+
+    // <div className={cn("flex items-center justify-center w-full h-full flex-col mt-10")}>
+
+    //   <div className={cn('w-full flex flex-1 items-center justify-center flex-col overflow-y-auto')}>
+
+    //   {
+
+    //     messages?.map((msg: ChatMessage, index: number) => (
+
+    //       <div key={index} className={cn("flex md:max-w-[70%] w-full", msg?.sender === "ai" ? "justify-start items-start" : "justify-end items-end")}>
+
+    //         <div className={cn("rounded-2xl cursor-pointer px-5 py-3 my-6 text-wrap", msg?.sender === "ai" ? "bg-gray-500 shadow-2xl text-white text-left max-w-[90%] sm:max-w-[80%] md:max-w-[70%] xl:max-w-[50%]" : "bg-blue-500 shadow-2xl text-white  max-w-[90%] sm:max-w-[80%] md:max-w-[70%] xl:max-w-[50%]")}>
+
+    //           {msg?.text}
+
+    //         </div>
+
+    //       </div>
+
+
+    //     ))
+
+    //   }
+
+    //   <div ref={chatEndRef} className={cn("mt-16 md:mt-40")} />
+
+    //   </div>
+
+
+    //   <form onSubmit={handleSend} className={cn("w-full md:max-w-[70%] fixed bottom-7")}>
+
+
+    //     <Input
+
+    //       className={cn("h-[3.5rem] w-full rounded-full pr-14 bg-white mx-5 shadow-2xl text-black placeholder:text-lg md:placeholder:text-xl placeholder:text-black")}
+    //       placeholder='Whats in your mind?...'
+    //       value={input}
+    //       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+
+    //     />
+
+
+    //     <button type='submit'>
+
+    //       <Image
+
+    //         src={"/assets/ChatPage/SendButton.png"}
+    //         height={500}
+    //         width={500}
+    //         alt='Send'
+    //         className={cn('h-12 w-12 rounded-xl absolute top-2 right-2 cursor-pointer')}
+
+    //       />
+    //     </button>
+
+
+    //   </form>
+
+
+
+
+    // </div>
+
+    <div className="flex flex-col h-full">
+      {/* Scrollable chat messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={cn(
+              'flex w-full md:max-w-[70%]',
+              msg.sender === 'ai'
+                ? 'justify-start items-start'
+                : 'justify-end items-end'
+            )}
+          >
+            <div
+              className={cn(
+                'rounded-2xl cursor-pointer px-5 py-3 my-3 shadow-2xl text-white text-wrap',
+                msg.sender === 'ai'
+                  ? 'bg-gray-500 text-left max-w-[90%] sm:max-w-[80%] md:max-w-[70%] xl:max-w-[50%]'
+                  : 'bg-blue-500 max-w-[90%] sm:max-w-[80%] md:max-w-[70%] xl:max-w-[50%]'
+              )}
+            >
+              {msg.text}
+            </div>
+          </div>
+        ))}
+
+        <div ref={chatEndRef} />
+      </div>
+
+      {/* Sticky input at bottom */}
+      <form
+        onSubmit={handleSend}
+        className="sticky bottom-0 bg-gray-100 py-4 px-4 border-t"
+      >
+        <div className="relative w-full max-w-[90%] mx-auto">
+          <Input
+            className={cn(
+              'h-[3.5rem] w-full rounded-full pr-14 bg-white shadow-xl text-black placeholder:text-lg md:placeholder:text-xl placeholder:text-black'
+            )}
+            placeholder="What's in your mind?..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+
+          <button type="submit">
+            <Image
+              src="/assets/ChatPage/SendButton.png"
+              height={500}
+              width={500}
+              alt="Send"
+              className="h-12 w-12 rounded-xl absolute top-1 right-1 cursor-pointer"
+            />
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+
+
+
+export default ChatSection

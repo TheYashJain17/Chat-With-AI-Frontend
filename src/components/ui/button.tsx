@@ -20,6 +20,11 @@ const buttonVariants = cva(
             "cursor-pointer bg-landing-blue2 text-white hover:shadow-lg font-bold",
           resetPassword:
             "cursor-pointer bg-landing-blue2 text-white hover:shadow-lg font-bold",
+          newchat:
+            "cursor-pointer bg-landing-blue2 text-white hover:shadow-lg font-medium",
+          uploadFile:
+            "cursor-pointer bg-gray-700 text-white hover:shadow-lg font-bold",
+          
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -39,6 +44,9 @@ const buttonVariants = cva(
         login: "h-[2.8rem] px-5 rounded-2xl w-full",
         signup: "h-[2.8rem] px-5 rounded-2xl w-full",
         resetPassword: "h-[2.8rem] px-5 rounded-2xl w-full text-xl",
+        newChat: "h-[2.5rem] px-5 rounded-full text-sm w-[10rem]",
+        uploadFile: "h-[2.5rem] px-5 rounded-full text-sm min-w-[10rem]",
+
       },
     },
     defaultVariants: {
