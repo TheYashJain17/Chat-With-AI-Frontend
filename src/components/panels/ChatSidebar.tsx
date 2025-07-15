@@ -148,12 +148,15 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Plus, Upload, Menu, MessageSquare } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { axiosInstance, publicAxiosInstance } from '@/utils/instances/axiosInstance';
+import { AxiosError, AxiosResponse } from 'axios';
+import { errorMsg, successMsg } from '@/utils/utilities';
 
 type ChatItem = {
   title: string;
@@ -168,7 +171,89 @@ const chatHistoryItems: ChatItem[] = [
   // Add more as needed
 ];
 
-const SidebarContent = () => (
+const SidebarContent = () => {
+
+  const [isFileUploading, setIsFileUploading] = useState<boolean>(false);
+
+  const _uploadFileToBackend = async(formData: FormData): Promise<void> => {
+
+    try {
+
+      const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/uploadFile`;
+
+      const response: AxiosResponse = await publicAxiosInstance.post(url, formData, {headers: {"Content-Type": "multipart/form-data"}});
+
+      console.log("The response we are getting from uploading file is", response);
+
+      if(!response?.data?.success){
+
+        errorMsg("Failed To Upload File");
+        return;
+
+      }
+      
+      successMsg("File Uploaded Successfully");
+
+    } catch (error: unknown) {
+
+      const err = error as AxiosError<{message: string}>;
+
+      console.log(err.message);
+
+      errorMsg(err.message);
+      
+    }
+
+  }
+
+  const handleUploadFile = async(): Promise<void> => {
+
+    try {
+      
+        const element = document.createElement("input");
+        element.setAttribute("type", "file");
+        element.setAttribute("accept", "application/pdf, image/png, image/jpg, image/jpeg");
+        element.addEventListener("change", async() => {
+
+          if(element.files && element.files?.length > 0){
+
+            const file = element?.files?.[0];
+
+          if(file){
+
+            setIsFileUploading(true);
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            await _uploadFileToBackend(formData);
+
+
+          }
+
+          }
+
+
+
+
+
+        })
+        element.click();
+
+    } catch (error) {
+
+      console.log(error);
+      
+    } finally{
+
+      setIsFileUploading(false);
+
+    }
+
+  }
+
+  return (
+
   <div className="flex flex-col h-full justify-between">
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-6 text-center">CHAT WITH DOCS</h2>
@@ -195,13 +280,17 @@ const SidebarContent = () => (
     </div>
 
     <div className="p-4">
-      <Button size="sm" variant="secondary" className="w-full">
-        <Upload className="mr-2" size={16} />
+      <Button size="sm" variant="secondary" className="w-full" onClick={handleUploadFile} disabled={isFileUploading}>
+        <Upload className="mr-2" size={16}/>
         Upload File
       </Button>
     </div>
   </div>
-);
+
+  )
+
+
+}
 
 const ChatSidebar = () => {
   return (
