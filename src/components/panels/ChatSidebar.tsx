@@ -179,6 +179,8 @@ const SidebarContent = () => {
 
     try {
 
+      setIsFileUploading(true)
+
       const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/uploadFile`;
 
       const response: AxiosResponse = await publicAxiosInstance.post(url, formData, {headers: {"Content-Type": "multipart/form-data"}});
@@ -193,6 +195,7 @@ const SidebarContent = () => {
       }
       
       successMsg("File Uploaded Successfully");
+      return;
 
     } catch (error: unknown) {
 
@@ -201,7 +204,12 @@ const SidebarContent = () => {
       console.log(err.message);
 
       errorMsg(err.message);
+      return;
       
+    }finally{
+
+      setIsFileUploading(false);
+
     }
 
   }
@@ -212,7 +220,7 @@ const SidebarContent = () => {
       
         const element = document.createElement("input");
         element.setAttribute("type", "file");
-        element.setAttribute("accept", "application/pdf, image/png, image/jpg, image/jpeg");
+        element.setAttribute("accept", "application/pdf, image/png, image/jpg, image/jpeg, text/plain");
         element.addEventListener("change", async() => {
 
           if(element.files && element.files?.length > 0){
@@ -221,20 +229,15 @@ const SidebarContent = () => {
 
           if(file){
 
-            setIsFileUploading(true);
 
             const formData = new FormData();
             formData.append("file", file);
 
             await _uploadFileToBackend(formData);
 
-
           }
 
           }
-
-
-
 
 
         })
@@ -244,11 +247,7 @@ const SidebarContent = () => {
 
       console.log(error);
       
-    } finally{
-
-      setIsFileUploading(false);
-
-    }
+    } 
 
   }
 

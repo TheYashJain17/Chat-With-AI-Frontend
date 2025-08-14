@@ -9,7 +9,8 @@ import { Button } from '../ui/button'
 import { IoMdEye, IoIosEyeOff } from "react-icons/io";
 import {useForm} from "react-hook-form";
 import { LogInProps } from '@/types/types'
-import { logInUser } from '@/services/auth'
+// import { logInUser } from '@/services/user.service'
+import UserService from '@/services/user.service'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useRouter } from 'next/navigation'
 import { errorMsg, successMsg } from '@/utils/utilities'
@@ -53,7 +54,7 @@ const LoginModal = (): React.JSX.Element => {
 
         try {
 
-            const response = await logInUser(data) as AxiosResponse;
+            const response = await UserService.logInUser(data) as AxiosResponse;
 
             console.log("the response is", response);
 

@@ -7,7 +7,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { SignUpProps } from '@/types/types';
-import { checkRegisteredUser, requestOtp, signUpUser, verifyOtp } from '@/services/auth';
+// import { checkRegisteredUser, requestOtp, signUpUser, verifyOtp } from '@/services/user.service';
+import UserService from '@/services/user.service';
 import { AxiosError, AxiosResponse } from 'axios';
 import OtpVerification from '../shared/OtpVerification';
 import { errorMsg, successMsg } from '@/utils/utilities';
@@ -47,7 +48,7 @@ const SignupModal = (): React.JSX.Element => {
 
             console.log(email, username, password, confirmpassword);
 
-            const response = await requestOtp(data?.email) as AxiosResponse;
+            const response = await UserService.requestOtp(data?.email) as AxiosResponse;
 
             console.log("The response ƒrom otp verification", response);
 
@@ -98,7 +99,7 @@ const SignupModal = (): React.JSX.Element => {
 
             setIsOtpVerification(true);
 
-            const otpResponse = await verifyOtp(userData?.email, otp) as AxiosResponse;
+            const otpResponse = await UserService.verifyOtp(userData?.email, otp) as AxiosResponse;
 
             setOtp("");
 
@@ -115,7 +116,7 @@ const SignupModal = (): React.JSX.Element => {
 
             successMsg("Otp Verified Successfully")
 
-            const response = await signUpUser(userData) as AxiosResponse;
+            const response = await UserService.signUpUser(userData) as AxiosResponse;
 
             // console.log(response?.data);
 
@@ -176,7 +177,7 @@ const SignupModal = (): React.JSX.Element => {
             }
 
             
-            const registeredUserResponse = await checkRegisteredUser(email) as AxiosResponse;
+            const registeredUserResponse = await UserService.checkRegisteredUser(email) as AxiosResponse;
 
             const isRegistered = registeredUserResponse?.data?.data?.data?.isEmailRegistered
 

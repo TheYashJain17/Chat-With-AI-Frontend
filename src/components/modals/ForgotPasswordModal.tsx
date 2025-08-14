@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { SignUpProps } from '@/types/types';
-import { checkRegisteredUser, requestOtp, resetPassword, signUpUser, verifyOtp } from '@/services/auth';
+// import { checkRegisteredUser, requestOtp, resetPassword, signUpUser, verifyOtp } from '@/services/user.service';
+import UserService from '@/services/user.service';
 import { AxiosResponse } from 'axios';
 import OtpVerification from '../shared/OtpVerification';
 import { errorMsg, successMsg } from '@/utils/utilities';
@@ -50,7 +51,7 @@ const ForgotPasswordModal = (): React.JSX.Element => {
 
             setIsEmailVerification(true);
 
-            const registerUserresponse = await checkRegisteredUser(emailAddress) as AxiosResponse;
+            const registerUserresponse = await UserService.checkRegisteredUser(emailAddress) as AxiosResponse;
 
             console.log("The response we are getting from registered user", registerUserresponse);
 
@@ -68,7 +69,7 @@ const ForgotPasswordModal = (): React.JSX.Element => {
 
             }
 
-                const otpResponse = await requestOtp(emailAddress) as AxiosResponse;
+                const otpResponse = await UserService.requestOtp(emailAddress) as AxiosResponse;
 
                 if(!otpResponse?.data?.data?.data?.sent){
 
@@ -107,7 +108,7 @@ const ForgotPasswordModal = (): React.JSX.Element => {
 
             setIsOtpVerification(true);
 
-            const response = await verifyOtp(emailAddress, otp);
+            const response = await UserService.verifyOtp(emailAddress, otp);
 
             console.log("The response getting from handle verification otp is", response);
 
@@ -151,7 +152,7 @@ const ForgotPasswordModal = (): React.JSX.Element => {
 
             setIsResetPassword(true);
 
-            const response = await resetPassword(emailAddress, newPassword) as AxiosResponse;
+            const response = await UserService.resetPassword(emailAddress, newPassword) as AxiosResponse;
 
             console.log("The response we are getting from handle reset password is", response);
 
