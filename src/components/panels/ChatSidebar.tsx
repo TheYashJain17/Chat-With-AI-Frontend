@@ -183,7 +183,9 @@ const SidebarContent = () => {
 
       const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/uploadFile`;
 
-      const response: AxiosResponse = await publicAxiosInstance.post(url, formData, {headers: {"Content-Type": "multipart/form-data"}});
+      const token = localStorage.getItem("token");
+
+      const response: AxiosResponse = await publicAxiosInstance.post(url, formData, {headers: {"Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}`}});
 
       console.log("The response we are getting from uploading file is", response);
 

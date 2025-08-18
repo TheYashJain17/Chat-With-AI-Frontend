@@ -103,11 +103,11 @@ const SignupModal = (): React.JSX.Element => {
 
             setOtp("");
 
-            // console.log(response)
+            console.log("The response from verify otp is", otpResponse);
 
             // console.log(response?.data?.data);
 
-            if (!otpResponse?.data?.data?.data) {
+            if (!otpResponse?.data?.data) {
 
                 errorMsg("Invalid OTP");
                 return;

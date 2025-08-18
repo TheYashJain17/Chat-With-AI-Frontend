@@ -76,3 +76,19 @@ export interface AuthStateType{
     clearToken: () => void;
 
 }
+
+
+export interface ChatMessageType{
+
+    role: string;
+    message: string;
+
+}
+
+export interface ChatMessageChunkType{
+
+    id: string, 
+    metadata: {}, 
+    pageContent: string
+
+}

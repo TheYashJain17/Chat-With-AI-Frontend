@@ -1,4 +1,4 @@
-import { publicAxiosInstance } from "@/utils/instances/axiosInstance";
+import { axiosInstance, publicAxiosInstance } from "@/utils/instances/axiosInstance";
 import { AxiosError, AxiosResponse } from "axios";
 
 class ExtractErrorMessage{
@@ -39,6 +39,7 @@ class ChatService{
                 userQuery,
             }
 
+            // const response = await axiosInstance.get("/chat", {params});
             const response = await publicAxiosInstance.get("/chat", {params});
 
             return response?.data;

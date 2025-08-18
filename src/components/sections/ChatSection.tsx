@@ -6,50 +6,99 @@ import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 import Image from 'next/image';
+import { errorMsg } from '@/utils/utilities';
+import ChatService from '@/services/chat.service';
+import { ChatMessageChunkType, ChatMessageType } from '@/types/types';
 
-type ChatMessage = {
-  id: number;
-  sender: "user" | "ai";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import { Terminal, TypingAnimation } from '../magicui/terminal';
+
+
+interface TypingMarkdownProps {
   text: string;
-  timestamp: string;
-};
+  speed?: number;
+}
+
+const TypingMarkdown: React.FC<TypingMarkdownProps> = ({ text, speed = 30 }) => {
+  const [currentText, setCurrentText] = useState('');
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setCurrentText((prev) => prev + text[i]);
+      i++;
+      if (i >= text.length) clearInterval(interval);
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return (
+    <div className="prose prose-sm sm:prose md:prose-lg prose-white">
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+        {currentText}
+      </ReactMarkdown>
+    </div>
+  );
+}
 
 const ChatSection = (): React.JSX.Element => {
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = (event: React.FormEvent<HTMLFormElement>) => {
 
-    event?.preventDefault();
+  const handleSend = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
 
-    if (!input.trim()) return console.log("Please Provide Message");
+    e.preventDefault();
 
-    const newMsg: ChatMessage = {
+    try {
 
-      id: 2,
-      sender: "user",
-      text: input,
-      timestamp: new Date().toLocaleDateString(),
+
+      if (!input?.trim()) {
+
+        errorMsg("Please Provide Your Query");
+        return;
+
+      }
+
+      setMessages(prev => [...prev, { role: "user", message: input }])
+
+      setInput("");
+
+
+      const response = await ChatService.sendYourQuery(input);
+
+      console.log("The Response we are getting from the chat send your query function is", response);
+
+      const { role, message } = response?.data as ChatMessageType;
+
+      const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
+
+      console.log("The chunks we are getting are", chunks);
+
+      const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
+
+      const cleanedMessage = finalMessage
+        .replace(/[○●◆]/g, '')
+        .replace(/^\s*[\r\n]/gm, '')
+        .trim();
+
+      setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
+
+
+    } catch (error) {
+
+      console.log(error);
+
+      errorMsg(JSON.stringify(error));
 
     }
 
-    setMessages((prev) => [...prev, newMsg]);
-
-    setInput("");
-
-    setTimeout(() => {
-      const aiMsg: ChatMessage = {
-        id: 1,
-        sender: "ai",
-        // text: "This is a sample AI response. You can replace it with a real API call.",
-        text: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas corrupti odio, voluptas molestias harum praesentium sapiente esse! Labore in repellendus excepturi natus atque maxime velit eum error, veritatis quisquam voluptas, totam suscipit?",
-        timestamp: new Date().toLocaleTimeString(),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    }, 700);
-  };
+  }
 
   useEffect(() => {
 
@@ -125,25 +174,47 @@ const ChatSection = (): React.JSX.Element => {
     <div className="flex flex-col h-full">
       {/* Scrollable chat messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center">
-        {messages.map((msg, index) => (
+        {messages.map((msg: ChatMessageType, index: number) => (
           <div
             key={index}
             className={cn(
-              'flex w-full md:max-w-[70%]',
-              msg.sender === 'ai'
+              'flex w-full md:max-w-[90%]',
+              msg?.role?.toLowerCase() === 'ai'
                 ? 'justify-start items-start'
                 : 'justify-end items-end'
             )}
           >
             <div
               className={cn(
-                'rounded-2xl cursor-pointer px-5 py-3 my-3 shadow-2xl text-white text-wrap',
-                msg.sender === 'ai'
+                'rounded-2xl cursor-pointer px-5 py-3 my-3 shadow-2xl text-white text-wrap ',
+                msg?.role?.toLowerCase() === 'ai'
                   ? 'bg-gray-500 text-left max-w-[90%] sm:max-w-[80%] md:max-w-[70%] xl:max-w-[50%]'
                   : 'bg-blue-500 max-w-[90%] sm:max-w-[80%] md:max-w-[70%] xl:max-w-[50%]'
               )}
             >
-              {msg.text}
+              {
+
+                msg?.role?.toLowerCase() === "ai"
+                ?
+                  <TypingMarkdown text={msg.message}/>
+
+                :
+                msg.message
+              }
+
+              {/* <Terminal>
+
+                <div className='prose prose-sm sm:prose md:prose-lg prose-white'>
+
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkBreaks]}
+
+                  >
+                      {msg.message}
+
+                  </ReactMarkdown>
+                </div>
+              </Terminal> */}
             </div>
           </div>
         ))}
@@ -151,7 +222,6 @@ const ChatSection = (): React.JSX.Element => {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Sticky input at bottom */}
       <form
         onSubmit={handleSend}
         className="sticky bottom-0 bg-gray-100 py-4 px-4 border-t"

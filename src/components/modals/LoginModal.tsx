@@ -65,7 +65,11 @@ const LoginModal = (): React.JSX.Element => {
 
             }
 
-            const token = response?.data?.data?.data?.loginToken;
+            console.log("The response we are getting after successfull login is", response)
+
+            const token = response?.data?.data?.loginToken;
+
+            console.log("The token we are saving is", token);
 
                 localStorage.setItem("token", token);
                 setToken(token);
