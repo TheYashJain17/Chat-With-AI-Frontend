@@ -13,7 +13,7 @@ import { LogInProps } from '@/types/types'
 import UserService from '@/services/user.service'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useRouter } from 'next/navigation'
-import { errorMsg, successMsg } from '@/utils/utilities'
+import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities'
 import { useAuthStore } from '@/store/store'
 
 
@@ -84,11 +84,11 @@ const LoginModal = (): React.JSX.Element => {
             
         } catch (error: unknown) {
 
-            const err = error as AxiosError<{message: string}>
+            // const err = error as AxiosError<{message: string}>
 
-            const errMsg = err?.response?.data?.message
+            const errMsg = extractErrorMessage(error);
 
-            console.log(errMsg);
+            // console.log(errMsg);
 
             errorMsg(errMsg as string)
 

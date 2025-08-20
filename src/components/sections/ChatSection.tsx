@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 import Image from 'next/image';
-import { errorMsg } from '@/utils/utilities';
+import { errorMsg, extractErrorMessage } from '@/utils/utilities';
 import ChatService from '@/services/chat.service';
 import { ChatMessageChunkType, ChatMessageType } from '@/types/types';
 
@@ -14,6 +14,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { Terminal, TypingAnimation } from '../magicui/terminal';
+import AiInput from '../ui/ai-input';
+import { useAuthStore } from '@/store/store';
 
 
 interface TypingMarkdownProps {
@@ -50,6 +52,10 @@ const ChatSection = (): React.JSX.Element => {
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const {token} = useAuthStore();
+
+  const chatService = new ChatService(token as string)
+
 
   const handleSend = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
 
@@ -70,7 +76,7 @@ const ChatSection = (): React.JSX.Element => {
       setInput("");
 
 
-      const response = await ChatService.sendYourQuery(input);
+      const response = await chatService.sendYourQuery(input);
 
       console.log("The Response we are getting from the chat send your query function is", response);
 
@@ -94,7 +100,9 @@ const ChatSection = (): React.JSX.Element => {
 
       console.log(error);
 
-      errorMsg(JSON.stringify(error));
+      const errMsg = extractErrorMessage(error);
+
+      errorMsg(errMsg);
 
     }
 
@@ -247,6 +255,8 @@ const ChatSection = (): React.JSX.Element => {
           </button>
         </div>
       </form>
+
+      {/* <AiInput setMessages={setMessages}/> */}
     </div>
   );
 };

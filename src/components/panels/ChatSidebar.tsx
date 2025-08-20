@@ -156,7 +156,9 @@ import { Plus, Upload, Menu, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { axiosInstance, publicAxiosInstance } from '@/utils/instances/axiosInstance';
 import { AxiosError, AxiosResponse } from 'axios';
-import { errorMsg, successMsg } from '@/utils/utilities';
+import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities';
+import ChatService from '@/services/chat.service';
+import { useAuthStore } from '@/store/store';
 
 type ChatItem = {
   title: string;
@@ -175,20 +177,27 @@ const SidebarContent = () => {
 
   const [isFileUploading, setIsFileUploading] = useState<boolean>(false);
 
+  const {token} = useAuthStore();
+
+  const chatService = new ChatService(token as string);
+
   const _uploadFileToBackend = async(formData: FormData): Promise<void> => {
 
     try {
 
       setIsFileUploading(true)
 
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/uploadFile`;
+      // const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/uploadFile`;
 
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
 
-      const response: AxiosResponse = await publicAxiosInstance.post(url, formData, {headers: {"Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}`}});
+      // const response: AxiosResponse = await publicAxiosInstance.post(url, formData, {headers: {"Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}`}});
 
+      const response = await chatService.uploadFileToBackend(formData);
+      
       console.log("The response we are getting from uploading file is", response);
 
+      // if(!response?.data?.success){
       if(!response?.data?.success){
 
         errorMsg("Failed To Upload File");
@@ -201,11 +210,13 @@ const SidebarContent = () => {
 
     } catch (error: unknown) {
 
-      const err = error as AxiosError<{message: string}>;
+      // const err = error as AxiosError<{message: string}>;
 
-      console.log(err.message);
+      const errMsg = extractErrorMessage(error);
 
-      errorMsg(err.message);
+      // console.log(err.message);
+
+      errorMsg(errMsg);
       return;
       
     }finally{

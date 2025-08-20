@@ -11,7 +11,7 @@ import { SignUpProps } from '@/types/types';
 import UserService from '@/services/user.service';
 import { AxiosResponse } from 'axios';
 import OtpVerification from '../shared/OtpVerification';
-import { errorMsg, successMsg } from '@/utils/utilities';
+import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities';
 import { IoMdEye, IoIosEyeOff } from "react-icons/io";
 
 
@@ -85,6 +85,10 @@ const ForgotPasswordModal = (): React.JSX.Element => {
         } catch (error) {
 
             console.log(error);
+
+            const errMsg = extractErrorMessage(error);
+
+            errorMsg(errMsg);
             
         }finally{
 

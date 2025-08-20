@@ -11,7 +11,7 @@ import { SignUpProps } from '@/types/types';
 import UserService from '@/services/user.service';
 import { AxiosError, AxiosResponse } from 'axios';
 import OtpVerification from '../shared/OtpVerification';
-import { errorMsg, successMsg } from '@/utils/utilities';
+import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities';
 
 import {debounce} from "lodash";
 
@@ -143,11 +143,11 @@ const SignupModal = (): React.JSX.Element => {
 
         } catch (error: unknown) {
 
-            const err = error as AxiosError<{ message: string }>;
+            // const err = error as AxiosError<{ message: string }>;
 
-            const errMsg = err?.response?.data?.message;
+            const errMsg = extractErrorMessage(error);
 
-            console.log(errMsg);
+            // console.log(errMsg);
 
             errorMsg(errMsg as string);
 
