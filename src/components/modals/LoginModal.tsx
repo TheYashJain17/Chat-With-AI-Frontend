@@ -18,6 +18,7 @@ import { useAuthStore } from '@/store/store'
 
 
 
+
 const LoginModal = (): React.JSX.Element => {
 
     const {register, handleSubmit, reset, formState: {errors, isSubmitting}} = useForm<LogInProps>();
@@ -71,7 +72,7 @@ const LoginModal = (): React.JSX.Element => {
 
             console.log("The token we are saving is", token);
 
-                localStorage.setItem("token", token);
+                // localStorage.setItem("token", token);
                 setToken(token);
                 
                 successMsg("Login Successfull");
