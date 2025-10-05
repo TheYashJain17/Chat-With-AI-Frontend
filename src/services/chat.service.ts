@@ -1,3 +1,4 @@
+import { AddMessageToDBType } from "@/types/types";
 import { axiosInstance, publicAxiosInstance } from "@/utils/instances/axiosInstance";
 import { AxiosError, AxiosResponse } from "axios";
 
@@ -62,7 +63,8 @@ class ChatService {
 
             // const token = localStorage.getItem("token");
 
-            const response: AxiosResponse = await publicAxiosInstance.post("/uploadFile", formData, { headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${this.token}` } });
+            // const response: AxiosResponse = await publicAxiosInstance.post("/uploadFile", formData, { headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${this.token}` } });
+            const response: AxiosResponse = await axiosInstance.post("/uploadFile", formData, { headers: { "Content-Type": "multipart/form-data" } });
 
             return response;
 
@@ -94,6 +96,18 @@ class ChatService {
             throw new Error(new ExtractErrorMessage(error, "Getting Error In sendYourQuery").getErrorMessage());
 
         }
+
+    }
+
+    async addChatMessagesToDB(body: AddMessageToDBType): Promise<AxiosResponse | void>{
+
+        const authenticationToken = this.getAuthHeaders();
+
+        console.log("The authenticationtoken we are geteting is", authenticationToken);
+
+        const response = await publicAxiosInstance.post("/chat/sendMessageToDb", body, {headers: {"Authorization": `Bearer ${this.token}`}});
+
+        return response;
 
     }
 

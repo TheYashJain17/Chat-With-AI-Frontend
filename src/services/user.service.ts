@@ -210,6 +210,29 @@ class UserService {
 
     }
 
+    static async getUploadedDocId(eventId: string): Promise<number | void>{
+
+        try {
+            
+            const response = await axiosInstance.get(`/user/uploadedDocumentId?eventId=${eventId}`);
+
+            const documentId = response?.data?.data?.documentId
+
+            // console.log("The id i am getting from getUploadedDoc is", documentId);
+
+            return documentId;
+
+
+        } catch (error) {
+
+            console.log(error);
+
+            // throw error;
+            
+        }
+
+    }
+
 
 }
 

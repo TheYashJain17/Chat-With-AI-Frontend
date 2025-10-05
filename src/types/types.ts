@@ -92,3 +92,16 @@ export interface ChatMessageChunkType{
     pageContent: string
 
 }
+
+export interface AddMessageToDBType{
+
+    uploadedDocId: string;
+    chatId?:string;
+    messageObj: {
+
+        role: string;
+        message: string;
+
+    }
+
+}

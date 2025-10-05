@@ -46,7 +46,7 @@ const TypingMarkdown: React.FC<TypingMarkdownProps> = ({ text, speed = 30 }) => 
   );
 }
 
-const ChatSection = (): React.JSX.Element => {
+const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.JSX.Element => {
 
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState("");
@@ -55,6 +55,32 @@ const ChatSection = (): React.JSX.Element => {
   const {token} = useAuthStore();
 
   const chatService = new ChatService(token as string)
+
+
+  const _addMessageToDB = async({uploadedDocId, role, message, chatId}: {uploadedDocId: string, role: string,message: string, chatId?: string}): Promise<string | void> => {
+
+    try {
+
+      console.log("the authentication token we are getting is", token)
+
+      const response = await chatService.addChatMessagesToDB({uploadedDocId, messageObj:{role, message}, chatId});
+
+
+      console.log("The chat response i am getting from this function is", response?.data);
+
+      const responseChatId = response?.data?.data?.id;
+
+      console.log("The chat id i am getting from this function is", responseChatId);
+
+      return responseChatId;
+      
+    } catch (error) {
+
+      console.log(error);
+      
+    }
+
+  }
 
 
   const handleSend = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -72,6 +98,8 @@ const ChatSection = (): React.JSX.Element => {
       }
 
       setMessages(prev => [...prev, { role: "user", message: input }])
+
+     const chatId: string = await  _addMessageToDB({uploadedDocId, role: "user", message: input}) as string;
 
       setInput("");
 
@@ -94,6 +122,9 @@ const ChatSection = (): React.JSX.Element => {
         .trim();
 
       setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
+
+      _addMessageToDB({uploadedDocId, role, message: cleanedMessage, chatId})
+
 
 
     } catch (error) {

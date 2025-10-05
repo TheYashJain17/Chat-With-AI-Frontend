@@ -41,7 +41,9 @@ axiosInstance.interceptors.request.use(
 
     (config) => {
 
-        const token = localStorage.getItem("token");
+        const tokenObject = localStorage.getItem("token");
+
+        const token = JSON.parse(tokenObject as string)?.state?.token
 
         if(token){
 
