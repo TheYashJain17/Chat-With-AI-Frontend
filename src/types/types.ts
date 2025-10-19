@@ -95,7 +95,7 @@ export interface ChatMessageChunkType{
 
 export interface AddMessageToDBType{
 
-    uploadedDocId: string;
+    uploadedDocId?: string;
     chatId?:string;
     messageObj: {
 

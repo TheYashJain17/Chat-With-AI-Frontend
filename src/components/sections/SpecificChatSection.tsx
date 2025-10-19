@@ -48,42 +48,30 @@ const TypingMarkdown: React.FC<TypingMarkdownProps> = ({ text, speed = 30 }) => 
   );
 }
 
-const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.JSX.Element => {
+const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JSX.Element => {
 
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const {token} = useAuthStore();
+  const { token } = useAuthStore();
 
-  const router = useRouter();
 
   const chatService = new ChatService(token as string)
 
 
-  const _addMessageToDB = async({uploadedDocId, role, message}: {uploadedDocId: string, role: string,message: string}): Promise<string | void> => {
+  const _addMessageToDB = async ({ role, message, chatId }: { role: string, message: string, chatId?: string }): Promise<string | void> => {
 
     try {
-
-      console.log("the authentication token we are getting is", token)
-
-      const response = await chatService.addChatMessagesToDB({uploadedDocId, messageObj:{role, message}});
-
+      
+      const response = await chatService.addChatMessagesToDB({ messageObj: { role, message }, chatId });
 
       console.log("The chat response i am getting from this function is", response?.data);
 
-      const responseChatId = response?.data?.data?.id;
-
-      console.log("The chat id i am getting from this function is", responseChatId);
-
-      router.push(`/chat/${responseChatId}`);
-
-      return responseChatId;
-      
     } catch (error) {
 
       console.log(error);
-      
+
     }
 
   }
@@ -105,35 +93,30 @@ const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.
 
       setMessages(prev => [...prev, { role: "user", message: input }])
 
-     const chatId: string = await  _addMessageToDB({uploadedDocId, role: "user", message: input}) as string;
+      await _addMessageToDB({ role: "user", message: input, chatId }) as string;
 
       setInput("");
 
-      sessionStorage.setItem("latestUserInput", JSON.stringify({ role: "user", message: input }));
+      const response = await chatService.sendYourQuery(input);
 
-      router.push(`/chat/${chatId}`)
+      console.log("The Response we are getting from the chat send your query function is", response);
 
+      const { role, message } = response?.data as ChatMessageType;
 
-      // const response = await chatService.sendYourQuery(input);
+      const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
 
-      // console.log("The Response we are getting from the chat send your query function is", response);
+      console.log("The chunks we are getting are", chunks);
 
-      // const { role, message } = response?.data as ChatMessageType;
+      const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
 
-      // const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
+      const cleanedMessage = finalMessage
+        .replace(/[○●◆]/g, '')
+        .replace(/^\s*[\r\n]/gm, '')
+        .trim();
 
-      // console.log("The chunks we are getting are", chunks);
+      setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
 
-      // const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
-
-      // const cleanedMessage = finalMessage
-      //   .replace(/[○●◆]/g, '')
-      //   .replace(/^\s*[\r\n]/gm, '')
-      //   .trim();
-
-      // setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
-
-      // _addMessageToDB({uploadedDocId, role, message: cleanedMessage})
+      _addMessageToDB({ role, message: cleanedMessage, chatId })
 
 
 
@@ -148,6 +131,57 @@ const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.
     }
 
   }
+
+  useEffect(() => {
+
+    if (!chatId) return;
+
+    const userQueryObj = JSON.parse(sessionStorage.getItem("latestUserInput") as string) as ChatMessageType;
+
+    if(!userQueryObj) return;
+
+    const handleInitialMessage = async (): Promise<void> => {
+
+      try {
+
+
+        setMessages((prev) => [...prev, userQueryObj]);
+
+        const response = await chatService.sendYourQuery(userQueryObj?.message);
+
+        console.log("The Response we are getting from the chat send your query function is", response);
+
+        const { role, message } = response?.data as ChatMessageType;
+
+        const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
+
+        console.log("The chunks we are getting are", chunks);
+
+        const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
+
+        const cleanedMessage = finalMessage
+          .replace(/[○●◆]/g, '')
+          .replace(/^\s*[\r\n]/gm, '')
+          .trim();
+
+        setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
+
+        _addMessageToDB({ role, message: cleanedMessage, chatId })
+
+        sessionStorage.removeItem("latestUserInput");
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
+    }
+
+    handleInitialMessage();
+
+
+  }, [chatId]);
 
   useEffect(() => {
 
@@ -180,11 +214,11 @@ const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.
               {
 
                 msg?.role?.toLowerCase() === "ai"
-                ?
-                  <TypingMarkdown text={msg.message}/>
+                  ?
+                  <TypingMarkdown text={msg.message} />
 
-                :
-                msg.message
+                  :
+                  msg?.message
               }
 
               {/* <Terminal>
@@ -241,4 +275,4 @@ const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.
 
 
 
-export default ChatSection
+export default SpecificChatSection
