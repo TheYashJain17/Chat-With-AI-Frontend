@@ -53,6 +53,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const initialMessageRef = useRef<boolean>(false);
 
   const { token } = useAuthStore();
 
@@ -107,7 +108,8 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
       console.log("The chunks we are getting are", chunks);
 
-      const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
+      // const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
+      const finalMessage: string = chunks[0]?.pageContent?.toString();
 
       const cleanedMessage = finalMessage
         .replace(/[○●◆]/g, '')
@@ -134,11 +136,18 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
   useEffect(() => {
 
-    if (!chatId) return;
-
+    console.log("Inside UseEffect specific chat section line 138")
+    if (chatId === undefined || initialMessageRef.current) return;
+    
     const userQueryObj = JSON.parse(sessionStorage.getItem("latestUserInput") as string) as ChatMessageType;
+    
+    console.log("Inside UseEffect specific chat section 143")
 
     if(!userQueryObj) return;
+
+    initialMessageRef.current = true;
+    
+    console.log("Inside UseEffect specific chat section 145")
 
     const handleInitialMessage = async (): Promise<void> => {
 
@@ -157,7 +166,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
         console.log("The chunks we are getting are", chunks);
 
-        const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
+        const finalMessage: string = chunks[0]?.pageContent?.toString();
 
         const cleanedMessage = finalMessage
           .replace(/[○●◆]/g, '')
