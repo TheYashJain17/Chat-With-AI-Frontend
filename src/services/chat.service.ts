@@ -1,6 +1,6 @@
 import { AddMessageToDBType } from "@/types/types";
 import { axiosInstance, publicAxiosInstance } from "@/utils/instances/axiosInstance";
-import { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 
 class ExtractErrorMessage {
@@ -33,27 +33,6 @@ class ExtractErrorMessage {
 
 class ChatService {
 
-    private token: string;
-
-    constructor(token: string){
-
-        this.token = token;
-
-    }
-
-    private  getAuthHeaders(){
-
-        return {
-
-            headers: {
-
-                "Authorization": `Bearer ${this.token}`
-
-            }
-
-        }
-
-    }
 
      async uploadFileToBackend(formData: FormData): Promise<AxiosResponse | void> {
 
@@ -87,7 +66,7 @@ class ChatService {
             }
 
             // const response = await axiosInstance.get("/chat", {params});
-            const response = await publicAxiosInstance.get("/chat", {...this.getAuthHeaders(),  params });
+            const response = await axiosInstance.get("/chat", {params });
 
             return response?.data;
 
@@ -101,26 +80,56 @@ class ChatService {
 
     async addChatMessagesToDB(body: AddMessageToDBType): Promise<AxiosResponse | void>{
 
-        const authenticationToken = this.getAuthHeaders();
+        try {
 
-        console.log("The authenticationtoken we are geteting is", authenticationToken);
-
-        const response = await publicAxiosInstance.post("/chat/sendMessageToDb", body, {headers: {"Authorization": `Bearer ${this.token}`}});
+        const response = await axiosInstance.post("/chat/sendMessageToDb", body);
 
         return response;
+            
+        } catch (error) {
+
+            console.log(error);
+
+            throw new Error(new ExtractErrorMessage(error, "Failed To Add Message To DB").getErrorMessage());
+            
+        }
+
+   
 
     }
 
-     async getAllChatMessages(): Promise<AxiosResponse | void> {
+     async getAllChatInstances(): Promise<AxiosResponse | void> {
 
         try {
+
+            const response = await axiosInstance.get("/chat/getAllChats");
+            return response;
 
         } catch (error) {
 
             console.log(error);
 
-            throw new Error(new ExtractErrorMessage(error, "Getting Error In GetAllChatMessages").getErrorMessage());
+            throw new Error(new ExtractErrorMessage(error, "Getting Error In GetAllChatInstances").getErrorMessage());
 
+        }
+
+    }
+
+    async getAllMessagesForAParticularChat(chatId: string): Promise<AxiosResponse | void> {
+
+        try {
+            
+            
+
+            const response = await axiosInstance.get(`/chat/getAllMessages?chatId=${chatId}`);
+            return response;
+
+        } catch (error) {
+
+            console.log(error);
+
+            throw new Error(new ExtractErrorMessage(error, "Failed To Get All Messages For A Particular Chat").getErrorMessage());
+            
         }
 
     }
@@ -128,3 +137,4 @@ class ChatService {
 }
 
 export default ChatService;
+
