@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import ChatSectionWrapper from "@/components/wrapper/ChatSectionWrapper";
+import QueryClientProviderWrapper from "@/utils/providers/QueryClient.provider";
 
 
 const geistSans = Geist({
@@ -30,14 +31,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster/>
+        <Toaster />
 
-        <ChatSectionWrapper>
+        <QueryClientProviderWrapper>
+
+
+
+          <ChatSectionWrapper>
 
             {children}
 
-        </ChatSectionWrapper>
+          </ChatSectionWrapper>
 
+        </QueryClientProviderWrapper>
 
       </body>
     </html>
