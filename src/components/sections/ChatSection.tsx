@@ -15,7 +15,7 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { Terminal, TypingAnimation } from '../magicui/terminal';
 import AiInput from '../ui/ai-input';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore, useDocumentStore } from '@/store/store';
 
 import { useRouter } from 'next/navigation';
 
@@ -48,7 +48,8 @@ const TypingMarkdown: React.FC<TypingMarkdownProps> = ({ text, speed = 30 }) => 
   );
 }
 
-const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.JSX.Element => {
+// const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.JSX.Element => {
+const ChatSection = (): React.JSX.Element => {
 
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState("");
@@ -56,10 +57,13 @@ const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.
 
   const {token} = useAuthStore();
 
+  const {uploadedDocId} = useDocumentStore();
+
   const router = useRouter();
 
-  const chatService = new ChatService(token as string)
+  const chatService = new ChatService()
 
+  console.log("The uploaded doc id we are getting is", uploadedDocId);
 
   const _addMessageToDB = async({uploadedDocId, role, message}: {uploadedDocId: string, role: string,message: string}): Promise<string | void> => {
 
@@ -105,7 +109,7 @@ const ChatSection: React.FC<{uploadedDocId: string}> = ({uploadedDocId}): React.
 
       setMessages(prev => [...prev, { role: "user", message: input }])
 
-     const chatId: string = await  _addMessageToDB({uploadedDocId, role: "user", message: input}) as string;
+     const chatId: string = await  _addMessageToDB({uploadedDocId: uploadedDocId as string, role: "user", message: input}) as string;
 
       setInput("");
 

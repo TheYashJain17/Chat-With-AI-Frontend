@@ -55,10 +55,8 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
   const chatEndRef = useRef<HTMLDivElement>(null);
   const initialMessageRef = useRef<boolean>(false);
 
-  const { token } = useAuthStore();
 
-
-  const chatService = new ChatService(token as string)
+  const chatService = new ChatService()
 
 
   const _addMessageToDB = async ({ role, message, chatId }: { role: string, message: string, chatId?: string }): Promise<string | void> => {

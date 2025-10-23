@@ -6,7 +6,7 @@ import { Menu, MessageSquare, Plus, Upload } from 'lucide-react';
 import React, { useState } from 'react';
 
 import ChatService from '@/services/chat.service';
-import { useAuthStore } from '@/store/store';
+import { useDocumentStore } from '@/store/store';
 import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities';
 import UserService from '@/services/user.service';
 
@@ -23,13 +23,14 @@ const chatHistoryItems: ChatItem[] = [
   // Add more as needed
 ];
 
-const SidebarContent: React.FC<{ setUploadedDocId: React.Dispatch<React.SetStateAction<string | null>> }> = ({ setUploadedDocId }) => {
+// const SidebarContent: React.FC<{ setUploadedDocId: React.Dispatch<React.SetStateAction<string | null>> }> = ({ setUploadedDocId }) => {
+const SidebarContent = (): React.JSX.Element => {
 
   const [isFileUploading, setIsFileUploading] = useState<boolean>(false);
 
-  const { token } = useAuthStore();
+  const {setUploadedDocId} = useDocumentStore();
 
-  const chatService = new ChatService(token as string);
+  const chatService = new ChatService();
 
   const _uploadFileToBackend = async (formData: FormData): Promise<void> => {
 
@@ -168,16 +169,13 @@ const SidebarContent: React.FC<{ setUploadedDocId: React.Dispatch<React.SetState
 
 }
 
-const ChatSidebar: React.FC<{ setUploadedDocId: React.Dispatch<React.SetStateAction<string | null>> }> = ({ setUploadedDocId }) => {
+// const ChatSidebar: React.FC<{ setUploadedDocId: React.Dispatch<React.SetStateAction<string | null>> }> = ({ setUploadedDocId }) => {
+const ChatSidebar = (): React.JSX.Element => {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar for large screens */}
       <aside className="hidden md:flex flex-col w-64 bg-gray-900 text-white shadow-lg">
-        <SidebarContent
-
-          setUploadedDocId={setUploadedDocId}
-
-        />
+        <SidebarContent/>
       </aside>
 
       <Sheet>
@@ -189,10 +187,7 @@ const ChatSidebar: React.FC<{ setUploadedDocId: React.Dispatch<React.SetStateAct
 
 
         <SheetContent side="left" className="bg-gray-900 text-white w-64 p-0">
-          <SidebarContent
-
-            setUploadedDocId={setUploadedDocId}
-          />
+          <SidebarContent/>
         </SheetContent>
       </Sheet>
 

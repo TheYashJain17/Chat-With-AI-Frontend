@@ -4,6 +4,14 @@ import {persist, PersistOptions} from "zustand/middleware";
 
 type AuthPersist = PersistOptions<AuthStateType>;
 
+type DocumentStore = {
+
+    uploadedDocId: string | null,
+    setUploadedDocId: (id: string) => void,
+    resetUploadedDocId: () => void
+
+}
+
 const useAuthStore = create<AuthStateType>()(persist<AuthStateType, [], [], AuthPersist>(
     (set) => ({
 
@@ -20,5 +28,18 @@ const useAuthStore = create<AuthStateType>()(persist<AuthStateType, [], [], Auth
 
 ))
 
+const useDocumentStore = create<DocumentStore>(
 
-export {useAuthStore}
+    (set) => ({
+
+        uploadedDocId: null,
+        setUploadedDocId: (id) => set(() => ({uploadedDocId: id})),
+        resetUploadedDocId: () => set({uploadedDocId: null})
+
+
+    })
+
+)
+
+
+export {useAuthStore, useDocumentStore}
