@@ -98,12 +98,13 @@ class ChatService {
 
     }
 
-     async getAllChatInstances(): Promise<AxiosResponse | void> {
+     async getAllChatInstances(): Promise<string[] | void> {
 
         try {
 
             const response = await axiosInstance.get("/chat/getAllChats");
-            return response;
+            // return response?.data || [];
+            return [];
 
         } catch (error) {
 
