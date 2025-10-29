@@ -3,12 +3,14 @@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, MessageSquare, Plus, Upload } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ChatService from '@/services/chat.service';
 import { useDocumentStore } from '@/store/store';
 import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities';
 import UserService from '@/services/user.service';
+import getQueryClient from '@/utils/clients/GetQuery.client';
+import { useQuery } from '@tanstack/react-query';
 
 type ChatItem = {
   title: string;
@@ -28,7 +30,7 @@ const SidebarContent = (): React.JSX.Element => {
 
   const [isFileUploading, setIsFileUploading] = useState<boolean>(false);
 
-  const {setUploadedDocId} = useDocumentStore();
+  const { setUploadedDocId } = useDocumentStore();
 
   const chatService = new ChatService();
 
@@ -129,6 +131,17 @@ const SidebarContent = (): React.JSX.Element => {
 
   }
 
+
+  const {data} = useQuery({ 
+
+    queryKey: ["allChatInstances"],
+    queryFn: chatService.getAllChatInstances,
+
+  })
+
+  console.log("The data we are getting from tanstack query function is", data)
+
+
   return (
 
     <div className="flex flex-col h-full justify-between">
@@ -175,7 +188,7 @@ const ChatSidebar = (): React.JSX.Element => {
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar for large screens */}
       <aside className="hidden md:flex flex-col w-64 bg-gray-900 text-white shadow-lg">
-        <SidebarContent/>
+        <SidebarContent />
       </aside>
 
       <Sheet>
@@ -187,7 +200,7 @@ const ChatSidebar = (): React.JSX.Element => {
 
 
         <SheetContent side="left" className="bg-gray-900 text-white w-64 p-0">
-          <SidebarContent/>
+          <SidebarContent />
         </SheetContent>
       </Sheet>
 

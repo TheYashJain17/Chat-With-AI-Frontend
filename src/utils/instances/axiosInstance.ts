@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { fetchToken } from "../utilities";
+
 const url: string = process.env.NEXT_PUBLIC_BACKEND_BASE_URL as string;
 
 const baseConfig = {
@@ -41,18 +43,13 @@ axiosInstance.interceptors.request.use(
 
     (config) => {
 
-        const tokenObject = localStorage.getItem("token");
-
-        const token = JSON.parse(tokenObject as string)?.state?.token
-
-        if(token){
-
+        return fetchToken().then((token: string) => {
+            
             config.headers.Authorization = `Bearer ${token}`;
-
-        }
-
-        return config;
-
+            
+            return config;
+            
+        })
     },
 
     (error) => Promise.reject(error)

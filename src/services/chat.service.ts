@@ -103,8 +103,8 @@ class ChatService {
         try {
 
             const response = await axiosInstance.get("/chat/getAllChats");
-            // return response?.data || [];
-            return [];
+            return response?.data?.data || [];
+            // return [];
 
         } catch (error) {
 

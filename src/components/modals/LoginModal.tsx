@@ -73,6 +73,11 @@ const LoginModal = (): React.JSX.Element => {
             console.log("The token we are saving is", token);
 
                 // localStorage.setItem("token", token);
+
+                const encodedToken = encodeURIComponent(token);
+
+                document.cookie = `token=${encodedToken}; path=/; secure; samesite=strict;`
+
                 setToken(token);
                 
                 successMsg("Login Successfull");

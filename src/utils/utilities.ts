@@ -13,4 +13,30 @@ const extractErrorMessage = (error: unknown): string => {
 
 }
 
-export {successMsg, errorMsg, extractErrorMessage};
+
+const fetchToken = async(): Promise<string> => {
+
+    let token: string;
+
+    if(typeof window !== "undefined"){
+
+        const tokenObject = localStorage.getItem("token");
+        
+        token = JSON.parse(tokenObject as string)?.state?.token ?? "";
+
+    }else{
+
+const  { cookies } = await import("next/headers");
+
+
+        token = (await cookies()).get("token")?.value as string ?? "";
+
+    }
+
+    return token;
+
+            
+
+}
+
+export {successMsg, errorMsg, extractErrorMessage, fetchToken};
