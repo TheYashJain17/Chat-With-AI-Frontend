@@ -11,6 +11,7 @@ import { errorMsg, extractErrorMessage, successMsg } from '@/utils/utilities';
 import UserService from '@/services/user.service';
 import getQueryClient from '@/utils/clients/GetQuery.client';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 
 type ChatItem = {
   title: string;
@@ -18,11 +19,11 @@ type ChatItem = {
   url: string;
 };
 
-const chatHistoryItems: ChatItem[] = [
+const OtherFunctonalitiesItems: ChatItem[] = [
   { title: "Chat with PDF", icon: MessageSquare, url: "#" },
   { title: "Research Notes", icon: MessageSquare, url: "#" },
   { title: "Summary Bot", icon: MessageSquare, url: "#" },
-  // Add more as needed
+
 ];
 
 // const SidebarContent: React.FC<{ setUploadedDocId: React.Dispatch<React.SetStateAction<string | null>> }> = ({ setUploadedDocId }) => {
@@ -132,7 +133,7 @@ const SidebarContent = (): React.JSX.Element => {
   }
 
 
-  const {data} = useQuery({ 
+  const { data } = useQuery({
 
     queryKey: ["allChatInstances"],
     queryFn: chatService.getAllChatInstances,
@@ -152,11 +153,8 @@ const SidebarContent = (): React.JSX.Element => {
           <Plus size={20} />
           New Chat
         </Button>
-
-        <div className="text-sm text-gray-400 mb-2">Your Conversations History</div>
-
         <div className="max-h-[250px] overflow-y-auto flex flex-col gap-2">
-          {chatHistoryItems.map((item) => (
+          {OtherFunctonalitiesItems.map((item) => (
             <Button
               key={item.title}
               variant="ghost"
@@ -165,6 +163,25 @@ const SidebarContent = (): React.JSX.Element => {
               <item.icon className="mr-2 h-4 w-4" />
               {item.title}
             </Button>
+          ))}
+        </div>
+
+        <div className="text-lg text-gray-400 mb-2">Your Conversations History</div>
+
+
+        <div className="max-h-[450px] overflow-y-auto flex flex-col gap-2">
+          {data?.map(({ chatInstances, chatId }, index) => (
+            <Link key={chatId} href={`/chat/${chatId}`}>
+              <Button
+                // key={item.message}
+                variant="ghost"
+                className="justify-start w-full text-left truncate"
+                title={chatInstances.message}
+              >
+                {chatInstances.message}
+              </Button>
+            </Link>
+
           ))}
         </div>
       </div>

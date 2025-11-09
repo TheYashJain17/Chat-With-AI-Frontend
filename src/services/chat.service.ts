@@ -98,7 +98,7 @@ class ChatService {
 
     }
 
-     async getAllChatInstances(): Promise<string[] | void> {
+     async getAllChatInstances(): Promise<{chatInstances:{role: string, message: string}, chatId: string}[] | void> {
 
         try {
 
