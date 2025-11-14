@@ -1,23 +1,19 @@
 "use client"
 
-import React, { FormEvent, useEffect, useRef, useState } from 'react'
-import { Input } from '../ui/input';
 import { cn } from '@/lib/utils';
-import { Button } from '../ui/button';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
+import { Input } from '../ui/input';
 
-import Image from 'next/image';
-import { errorMsg, extractErrorMessage } from '@/utils/utilities';
 import ChatService from '@/services/chat.service';
 import { ChatMessageChunkType, ChatMessageType } from '@/types/types';
+import { errorMsg, extractErrorMessage } from '@/utils/utilities';
+import Image from 'next/image';
 
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { Terminal, TypingAnimation } from '../magicui/terminal';
-import AiInput from '../ui/ai-input';
-import { useAuthStore } from '@/store/store';
+import remarkGfm from "remark-gfm";
 
-import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 
 
 interface TypingMarkdownProps {
@@ -62,7 +58,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
   const _addMessageToDB = async ({ role, message, chatId }: { role: string, message: string, chatId?: string }): Promise<string | void> => {
 
     try {
-      
+
       const response = await chatService.addChatMessagesToDB({ messageObj: { role, message }, chatId });
 
       console.log("The chat response i am getting from this function is", response?.data);
@@ -96,27 +92,74 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
       setInput("");
 
-      const response = await chatService.sendYourQuery(input);
+      // const response = await chatService.sendYourQuery(input);
 
-      console.log("The Response we are getting from the chat send your query function is", response);
+      // console.log("The Response we are getting from the chat send your query function is", response);
 
-      const { role, message } = response?.data as ChatMessageType;
+      // const { role, message } = response?.data as ChatMessageType;
 
-      const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
+      // const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
 
-      console.log("The chunks we are getting are", chunks);
+      // console.log("The chunks we are getting are", chunks);
 
-      // const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
-      const finalMessage: string = chunks[0]?.pageContent?.toString();
+      // // const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
+      // const finalMessage: string = chunks[0]?.pageContent?.toString();
 
-      const cleanedMessage = finalMessage
-        .replace(/[○●◆]/g, '')
-        .replace(/^\s*[\r\n]/gm, '')
-        .trim();
+      // const cleanedMessage = finalMessage
+      //   .replace(/[○●◆]/g, '')
+      //   .replace(/^\s*[\r\n]/gm, '')
+      //   .trim();
 
-      setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
+      // setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
 
-      _addMessageToDB({ role, message: cleanedMessage, chatId })
+      const tokenState = JSON.parse(localStorage.getItem("token") as string) as { state: { token: string } };
+
+      const token = tokenState.state.token;
+
+      console.log("The token we are getting is", token);
+
+
+
+      const response = await fetch(`http://localhost:8006/api/v1/rag/chat?userQuery=${input}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (!response?.body) throw new Error("No response body received from stream endpoint")
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+
+      let aiMessage = "";
+      setMessages(prev => [...prev, { role: "ai", message: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n").filter(line => line.trimStart().startsWith("data:"));
+
+        for (const line of lines) {
+          const token = line.replace(/^data:\s*/, "");
+
+          if (token === "[DONE]") {
+            reader.cancel();
+            break;
+          }
+
+          aiMessage += token;
+          setMessages(prev => {
+            const copy = [...prev];
+            copy[copy.length - 1].message = aiMessage; // update last AI message progressively
+            return copy;
+          });
+        }
+      }
+
+
+
+      _addMessageToDB({ role: "AI", message: aiMessage, chatId })
 
 
 
@@ -132,19 +175,30 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
   }
 
+
+  const { data, isSuccess } = useQuery({
+
+    queryKey: ["getAllMessages", chatId],
+    queryFn: () => chatService.getAllMessagesForAParticularChat(chatId),
+    enabled: !!chatId
+
+  })
+
+
+
   useEffect(() => {
 
     console.log("Inside UseEffect specific chat section line 138")
     if (chatId === undefined || initialMessageRef.current) return;
-    
+
     const userQueryObj = JSON.parse(sessionStorage.getItem("latestUserInput") as string) as ChatMessageType;
-    
+
     console.log("Inside UseEffect specific chat section 143")
 
-    if(!userQueryObj) return;
+    if (!userQueryObj) return;
 
     initialMessageRef.current = true;
-    
+
     console.log("Inside UseEffect specific chat section 145")
 
     const handleInitialMessage = async (): Promise<void> => {
@@ -154,26 +208,73 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
         setMessages((prev) => [...prev, userQueryObj]);
 
-        const response = await chatService.sendYourQuery(userQueryObj?.message);
+        // const response = await chatService.sendYourQuery(userQueryObj?.message);
 
-        console.log("The Response we are getting from the chat send your query function is", response);
+        // console.log("The Response we are getting from the chat send your query function is", response);
 
-        const { role, message } = response?.data as ChatMessageType;
+        // const { role, message } = response?.data as ChatMessageType;
 
-        const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
+        // const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
 
-        console.log("The chunks we are getting are", chunks);
+        // console.log("The chunks we are getting are", chunks);
 
-        const finalMessage: string = chunks[0]?.pageContent?.toString();
+        // const finalMessage: string = chunks[0]?.pageContent?.toString();
 
-        const cleanedMessage = finalMessage
-          .replace(/[○●◆]/g, '')
-          .replace(/^\s*[\r\n]/gm, '')
-          .trim();
+        // const cleanedMessage = finalMessage
+        //   .replace(/[○●◆]/g, '')
+        //   .replace(/^\s*[\r\n]/gm, '')
+        //   .trim();
 
-        setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
+        const tokenState = JSON.parse(localStorage.getItem("token") as string) as { state: { token: string } };
 
-        _addMessageToDB({ role, message: cleanedMessage, chatId })
+        const token = tokenState.state.token;
+
+        console.log("The token we are getting is", token);
+
+        const input = userQueryObj?.message;
+
+
+
+        const response = await fetch(`http://localhost:8006/api/v1/rag/chat?userQuery=${input}`, {
+          method: "GET",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!response?.body) throw new Error("No response body received from stream endpoint")
+
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+
+        let aiMessage = "";
+        setMessages(prev => [...prev, { role: "ai", message: "" }]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n").filter(line => line.trimStart().startsWith("data:"));
+
+          for (const line of lines) {
+            const token = line.replace(/^data:\s*/, "");
+
+            if (token === "[DONE]") {
+              reader.cancel();
+              break;
+            }
+
+            aiMessage += token;
+            setMessages(prev => {
+              const copy = [...prev];
+              copy[copy.length - 1].message = aiMessage; // update last AI message progressively
+              return copy;
+            });
+          }
+        }
+
+        setMessages(prev => [...prev, { message: aiMessage, role: "AI" }])
+
+        _addMessageToDB({ role: "AI", message: aiMessage, chatId })
 
         sessionStorage.removeItem("latestUserInput");
 
@@ -196,11 +297,24 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
   }, [messages])
 
+  useEffect(() => {
+
+    if (data && isSuccess && messages.length === 0) {
+
+      console.log("The data we are getting is", data);
+
+      setMessages(data as ChatMessageType[]);
+
+    }
+
+  }, [data, isSuccess])
+
+
   return (
 
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center">
-        {messages.map((msg: ChatMessageType, index: number) => (
+        {messages?.map((msg: ChatMessageType, index: number) => (
           <div
             key={index}
             className={cn(
@@ -220,12 +334,12 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
             >
               {
 
-                msg?.role?.toLowerCase() === "ai"
-                  ?
-                  <TypingMarkdown text={msg.message} />
+                // msg?.role?.toLowerCase() === "ai"
+                //   ?
+                //   <TypingMarkdown text={msg.message} />
 
-                  :
-                  msg?.message
+                //   :
+                msg?.message
               }
 
               {/* <Terminal>

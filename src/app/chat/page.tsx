@@ -10,14 +10,12 @@ export default async function page() {
 
   const queryClient = getQueryClient();
 
-  const response = await queryClient.prefetchQuery({
+  await queryClient.prefetchQuery({
 
     queryKey: ["allChatInstances"],
     queryFn: chatService.getAllChatInstances,
 
   })
-
-  console.log("the response we are getting from server component is", response)
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

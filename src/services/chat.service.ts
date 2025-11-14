@@ -116,14 +116,12 @@ class ChatService {
 
     }
 
-    async getAllMessagesForAParticularChat(chatId: string): Promise<AxiosResponse | void> {
+    async getAllMessagesForAParticularChat(chatId: string): Promise<{role: string, message: string}[] | void> {
 
         try {
             
-            
-
             const response = await axiosInstance.get(`/chat/getAllMessages?chatId=${chatId}`);
-            return response;
+            return response?.data?.data?.messages;
 
         } catch (error) {
 

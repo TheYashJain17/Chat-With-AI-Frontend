@@ -1,32 +1,46 @@
-"use client"
-
-import ChatSidebar from '@/components/panels/ChatSidebar'
 import SpecificChatSidebar from '@/components/panels/SpecificChatSidebar'
-import ChatSection from '@/components/sections/ChatSection'
 import SpecificChatSection from '@/components/sections/SpecificChatSection'
-import { useParams } from 'next/navigation'
-import React, { useState } from 'react'
+import ChatService from '@/services/chat.service'
+import getQueryClient from '@/utils/clients/GetQuery.client'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
-const page = (): React.JSX.Element => {
 
-  const params = useParams();
+const page = async ({params}: {params: {chatId: string}}) => {
 
-  const chatId = params.chatId;
+  const chatId = await params.chatId;
+
+  const chatService = new ChatService();
+
+  const queryClient = getQueryClient();
+
+  await queryClient.prefetchQuery({
+
+    queryKey: ["getAllMessages", chatId],
+    queryFn: () => chatService.getAllMessagesForAParticularChat(chatId as string)
+
+  })
 
   // const [uploadedDocId, setUploadedDocId] = useState<string | null>(null);
 
   return (
 
+
     <div className="flex h-screen w-screen overflow-hidden">
-  <SpecificChatSidebar 
+      <SpecificChatSidebar
 
-    // setUploadedDocId={setUploadedDocId}
+      // setUploadedDocId={setUploadedDocId}
 
-  />
-  <main className="flex-1 overflow-hidden">
-    <SpecificChatSection chatId={chatId as string} />
-  </main>
-</div>
+      />
+
+      <HydrationBoundary state={dehydrate(queryClient)}>
+
+
+
+        <main className="flex-1 overflow-hidden">
+          <SpecificChatSection chatId={chatId as string} />
+        </main>
+      </HydrationBoundary>
+    </div>
 
   )
 }
