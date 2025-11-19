@@ -118,29 +118,6 @@ const ChatSection = (): React.JSX.Element => {
       router.push(`/chat/${chatId}`)
 
 
-      // const response = await chatService.sendYourQuery(input);
-
-      // console.log("The Response we are getting from the chat send your query function is", response);
-
-      // const { role, message } = response?.data as ChatMessageType;
-
-      // const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
-
-      // console.log("The chunks we are getting are", chunks);
-
-      // const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
-
-      // const cleanedMessage = finalMessage
-      //   .replace(/[○●◆]/g, '')
-      //   .replace(/^\s*[\r\n]/gm, '')
-      //   .trim();
-
-      // setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
-
-      // _addMessageToDB({uploadedDocId, role, message: cleanedMessage})
-
-
-
     } catch (error) {
 
       console.log(error);
@@ -191,19 +168,6 @@ const ChatSection = (): React.JSX.Element => {
                 msg.message
               }
 
-              {/* <Terminal>
-
-                <div className='prose prose-sm sm:prose md:prose-lg prose-white'>
-
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm, remarkBreaks]}
-
-                  >
-                      {msg.message}
-
-                  </ReactMarkdown>
-                </div>
-              </Terminal> */}
             </div>
           </div>
         ))}
@@ -237,7 +201,6 @@ const ChatSection = (): React.JSX.Element => {
         </div>
       </form>
 
-      {/* <AiInput setMessages={setMessages}/> */}
     </div>
   );
 };

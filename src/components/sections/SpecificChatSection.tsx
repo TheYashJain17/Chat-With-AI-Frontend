@@ -50,6 +50,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const initialMessageRef = useRef<boolean>(false);
+  const hydrationRef = useRef<boolean>(false);
 
 
   const chatService = new ChatService()
@@ -91,26 +92,6 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
       await _addMessageToDB({ role: "user", message: input, chatId }) as string;
 
       setInput("");
-
-      // const response = await chatService.sendYourQuery(input);
-
-      // console.log("The Response we are getting from the chat send your query function is", response);
-
-      // const { role, message } = response?.data as ChatMessageType;
-
-      // const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
-
-      // console.log("The chunks we are getting are", chunks);
-
-      // // const finalMessage: string = chunks?.map((chunk: ChatMessageChunkType) => chunk?.pageContent?.toString()).join("\n");
-      // const finalMessage: string = chunks[0]?.pageContent?.toString();
-
-      // const cleanedMessage = finalMessage
-      //   .replace(/[○●◆]/g, '')
-      //   .replace(/^\s*[\r\n]/gm, '')
-      //   .trim();
-
-      // setMessages(prev => [...prev, { message: cleanedMessage, role: role }])
 
       const tokenState = JSON.parse(localStorage.getItem("token") as string) as { state: { token: string } };
 
@@ -197,6 +178,9 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
     if (!userQueryObj) return;
 
+    sessionStorage.removeItem("latestUserInput");
+
+
     initialMessageRef.current = true;
 
     console.log("Inside UseEffect specific chat section 145")
@@ -207,23 +191,6 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
 
         setMessages((prev) => [...prev, userQueryObj]);
-
-        // const response = await chatService.sendYourQuery(userQueryObj?.message);
-
-        // console.log("The Response we are getting from the chat send your query function is", response);
-
-        // const { role, message } = response?.data as ChatMessageType;
-
-        // const chunks: ChatMessageChunkType[] = message as unknown as ChatMessageChunkType[];
-
-        // console.log("The chunks we are getting are", chunks);
-
-        // const finalMessage: string = chunks[0]?.pageContent?.toString();
-
-        // const cleanedMessage = finalMessage
-        //   .replace(/[○●◆]/g, '')
-        //   .replace(/^\s*[\r\n]/gm, '')
-        //   .trim();
 
         const tokenState = JSON.parse(localStorage.getItem("token") as string) as { state: { token: string } };
 
@@ -253,30 +220,28 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
           if (done) break;
 
           const chunk = decoder.decode(value);
-          const lines = chunk.split("\n").filter(line => line.trimStart().startsWith("data:"));
+          const lines = chunk
+            .split("data:")
+            .map(l => l.trim())
+            .filter(Boolean);
 
-          for (const line of lines) {
-            const token = line.replace(/^data:\s*/, "");
+          for (const token of lines) {
 
-            if (token === "[DONE]") {
-              reader.cancel();
+            if (token.trim().toUpperCase() === "[DONE]") {
               break;
             }
 
             aiMessage += token;
             setMessages(prev => {
               const copy = [...prev];
-              copy[copy.length - 1].message = aiMessage; // update last AI message progressively
+              copy[copy.length - 1].message = aiMessage;
               return copy;
+
             });
           }
         }
 
-        setMessages(prev => [...prev, { message: aiMessage, role: "AI" }])
-
         _addMessageToDB({ role: "AI", message: aiMessage, chatId })
-
-        sessionStorage.removeItem("latestUserInput");
 
       } catch (error) {
 
@@ -299,15 +264,26 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
   useEffect(() => {
 
-    if (data && isSuccess && messages.length === 0) {
+    const hasInitialMessage = sessionStorage.getItem("latestUserInput");
+
+    if(hasInitialMessage){
+
+      hydrationRef.current = true;
+      return;
+
+    }
+
+    if (!hydrationRef.current && data && isSuccess && messages.length === 0) {
 
       console.log("The data we are getting is", data);
 
       setMessages(data as ChatMessageType[]);
 
+      hydrationRef.current = true;
+
     }
 
-  }, [data, isSuccess])
+  }, [data, isSuccess, messages.length])
 
 
   return (
