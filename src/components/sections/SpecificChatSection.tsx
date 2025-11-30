@@ -49,8 +49,8 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const initialMessageRef = useRef<boolean>(false);
-  const hydrationRef = useRef<boolean>(false);
+  const [shouldReply, setShouldReply] = useState<boolean>(false);
+  const hasReplied = useRef<boolean>(false);
 
 
   const chatService = new ChatService()
@@ -87,6 +87,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
       }
 
+
       setMessages(prev => [...prev, { role: "user", message: input }])
 
       await _addMessageToDB({ role: "user", message: input, chatId }) as string;
@@ -112,7 +113,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
       const decoder = new TextDecoder();
 
       let aiMessage = "";
-      setMessages(prev => [...prev, { role: "ai", message: "" }]);
+      setMessages(prev => [...prev, { role: "AI", message: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -161,100 +162,103 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
     queryKey: ["getAllMessages", chatId],
     queryFn: () => chatService.getAllMessagesForAParticularChat(chatId),
-    enabled: !!chatId
-
+    enabled: !!chatId,
+  
   })
 
 
+useEffect(() => {
 
-  useEffect(() => {
+  if(!shouldReply && !hasReplied.current) return;
 
-    console.log("Inside UseEffect specific chat section line 138")
-    if (chatId === undefined || initialMessageRef.current) return;
+  if(shouldReply && hasReplied.current){
 
-    const userQueryObj = JSON.parse(sessionStorage.getItem("latestUserInput") as string) as ChatMessageType;
+    const lastMessage = (data as unknown as ChatMessageType[])?.[(data as unknown as ChatMessageType[])?.length - 1]?.message;
 
-    console.log("Inside UseEffect specific chat section 143")
+    console.log("The last message we are getting is", lastMessage);
 
-    if (!userQueryObj) return;
+  }
 
-    sessionStorage.removeItem("latestUserInput");
-
-
-    initialMessageRef.current = true;
-
-    console.log("Inside UseEffect specific chat section 145")
-
-    const handleInitialMessage = async (): Promise<void> => {
-
-      try {
+}, [shouldReply]);
 
 
-        setMessages((prev) => [...prev, userQueryObj]);
+  const handleInitialMessage = async (message: string): Promise<void> => {
 
-        const tokenState = JSON.parse(localStorage.getItem("token") as string) as { state: { token: string } };
+    try {
 
-        const token = tokenState.state.token;
+      // const userQueryObj = JSON.parse(sessionStorage.getItem("latestUserInput") as string) as ChatMessageType
 
-        console.log("The token we are getting is", token);
+      // setMessages((prev) => [...prev, userQueryObj]);
 
-        const input = userQueryObj?.message;
+      const tokenState = JSON.parse(localStorage.getItem("token") as string) as { state: { token: string } };
+
+      const token = tokenState.state.token;
+
+      console.log("The token we are getting is", token);
+
+      // const input = userQueryObj?.message;
+      const input = message;
 
 
 
-        const response = await fetch(`http://localhost:8006/api/v1/rag/chat?userQuery=${input}`, {
-          method: "GET",
-          headers: { "Authorization": `Bearer ${token}` }
-        });
+      const response = await fetch(`http://localhost:8006/api/v1/rag/chat?userQuery=${input}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
 
-        if (!response?.body) throw new Error("No response body received from stream endpoint")
+      if (!response?.body) throw new Error("No response body received from stream endpoint")
 
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
 
-        let aiMessage = "";
-        setMessages(prev => [...prev, { role: "ai", message: "" }]);
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+      let aiMessage = "";
+      setMessages(prev => [...prev, { role: "AI", message: "" }]);
 
-          const chunk = decoder.decode(value);
-          const lines = chunk
-            .split("data:")
-            .map(l => l.trim())
-            .filter(Boolean);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-          for (const token of lines) {
+        let chunkText = decoder.decode(value);
 
-            if (token.trim().toUpperCase() === "[DONE]") {
-              break;
-            }
+        // Case 1: normal SSE
+        let lines = chunkText
+          .split(/(?=data:)/g)
+          .filter(line => line.trim().startsWith("data:"))
+          .map(line => line.replace(/^data:\s*/, "").trim());
 
-            aiMessage += token;
-            setMessages(prev => {
-              const copy = [...prev];
-              copy[copy.length - 1].message = aiMessage;
-              return copy;
 
-            });
-          }
+        if (lines.length === 0 && chunkText.trim().length > 0) {
+          lines = [chunkText.trim()];
         }
 
-        _addMessageToDB({ role: "AI", message: aiMessage, chatId })
+        for (const token of lines) {
+          if (token === "[DONE]") {
+            reader.cancel();
+            break;
+          }
 
-      } catch (error) {
+          aiMessage += token;
 
-        console.log(error);
+          setMessages(prev => {
+            const copy = [...prev];
+            copy[copy.length - 1].message = aiMessage;
+            return copy;
+          });
+        }
 
       }
+      _addMessageToDB({ role: "AI", message: aiMessage, chatId });
+      // sessionStorage.removeItem("latestUserInput");
+
+
+    } catch (error) {
+
+      console.log(error);
 
     }
 
-    handleInitialMessage();
-
-
-  }, [chatId]);
+  }
 
   useEffect(() => {
 
@@ -262,28 +266,40 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
   }, [messages])
 
-  useEffect(() => {
+const lastProcessedChatId = useRef<string | null>(null);
 
-    const hasInitialMessage = sessionStorage.getItem("latestUserInput");
+useEffect(() => {
+  if (!data || !isSuccess) return;
 
-    if(hasInitialMessage){
+  // Only process if we haven't handled this chatId yet
+  if (lastProcessedChatId.current === chatId) return;
 
-      hydrationRef.current = true;
-      return;
+  setMessages(data as ChatMessageType[]);
+  lastProcessedChatId.current = chatId;
 
-    }
+  const lastMessage = (data as ChatMessageType[])[data.length - 1]?.message;
+  console.log("The last message we are getting is", lastMessage);
 
-    if (!hydrationRef.current && data && isSuccess && messages.length === 0) {
+}, [data, isSuccess, chatId]);
 
-      console.log("The data we are getting is", data);
 
-      setMessages(data as ChatMessageType[]);
 
-      hydrationRef.current = true;
+  // useEffect(() => {
 
-    }
+  //   if(shouldReply && hasReplied?.current) return;
 
-  }, [data, isSuccess, messages.length])
+  //   if (data && isSuccess && messages.length === 0) {
+
+  //     console.log("The data we are getting is", data);
+
+  //     setMessages(data as ChatMessageType[]);
+
+  //     hasReplied.current = true;
+  //     setShouldReply(true);
+
+  //   }
+
+  // }, [data, isSuccess])
 
 
   return (
@@ -315,8 +331,9 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
                 //   <TypingMarkdown text={msg.message} />
 
                 //   :
-                msg?.message
+
               }
+              {msg.message?.length > 0 ? msg.message : <span className="opacity-0">...</span>}
 
               {/* <Terminal>
 
@@ -345,7 +362,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
         <div className="relative w-full max-w-[90%] mx-auto">
           <Input
             className={cn(
-              'h-[3.5rem] w-full rounded-full pr-14 bg-white shadow-xl text-black placeholder:text-lg md:placeholder:text-xl placeholder:text-black'
+              'h-14 w-full rounded-full pr-14 bg-white shadow-xl text-black placeholder:text-lg md:placeholder:text-xl placeholder:text-black'
             )}
             placeholder="What's in your mind?..."
             value={input}
@@ -364,7 +381,7 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
         </div>
       </form>
 
-      {/* <AiInput setMessages={setMessages}/> */}
+
     </div>
   );
 };
@@ -373,3 +390,6 @@ const SpecificChatSection: React.FC<{ chatId: string }> = ({ chatId }): React.JS
 
 
 export default SpecificChatSection
+
+
+

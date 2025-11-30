@@ -5,9 +5,15 @@ import getQueryClient from '@/utils/clients/GetQuery.client'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 
+// export const config = {
+//   unstable_runtimeJS: false,
+// };
+
 const page = async ({params}: {params: {chatId: string}}) => {
 
-  const chatId = await params.chatId;
+    const param = await params;
+
+    const chatId = param.chatId;
 
   const chatService = new ChatService();
 

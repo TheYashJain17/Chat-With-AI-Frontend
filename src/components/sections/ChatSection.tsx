@@ -80,7 +80,7 @@ const ChatSection = (): React.JSX.Element => {
 
       console.log("The chat id i am getting from this function is", responseChatId);
 
-      router.push(`/chat/${responseChatId}`);
+      // router.push(`/chat/${responseChatId}`);
 
       return responseChatId;
       
@@ -113,7 +113,7 @@ const ChatSection = (): React.JSX.Element => {
 
       setInput("");
 
-      sessionStorage.setItem("latestUserInput", JSON.stringify({ role: "user", message: input }));
+      // sessionStorage.setItem("latestUserInput", JSON.stringify({ role: "user", message: input }));
 
       router.push(`/chat/${chatId}`)
 
@@ -182,7 +182,7 @@ const ChatSection = (): React.JSX.Element => {
         <div className="relative w-full max-w-[90%] mx-auto">
           <Input
             className={cn(
-              'h-[3.5rem] w-full rounded-full pr-14 bg-white shadow-xl text-black placeholder:text-lg md:placeholder:text-xl placeholder:text-black'
+              'h-14 w-full rounded-full pr-14 bg-white shadow-xl text-black placeholder:text-lg md:placeholder:text-xl placeholder:text-black'
             )}
             placeholder="What's in your mind?..."
             value={input}
