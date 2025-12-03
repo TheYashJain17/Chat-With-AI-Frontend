@@ -63,13 +63,13 @@ const ChatSection = (): React.JSX.Element => {
 
   const chatService = new ChatService()
 
-  console.log("The uploaded doc id we are getting is", uploadedDocId);
+  // console.log("The uploaded doc id we are getting is", uploadedDocId);
 
   const _addMessageToDB = async({uploadedDocId, role, message}: {uploadedDocId: string, role: string,message: string}): Promise<string | void> => {
 
     try {
 
-      console.log("the authentication token we are getting is", token)
+      // console.log("the authentication token we are getting is", token)
 
       const response = await chatService.addChatMessagesToDB({uploadedDocId, messageObj:{role, message}});
 
@@ -79,6 +79,9 @@ const ChatSection = (): React.JSX.Element => {
       const responseChatId = response?.data?.data?.id;
 
       console.log("The chat id i am getting from this function is", responseChatId);
+
+      router.push(`/chat/${responseChatId}`)
+
 
       // router.push(`/chat/${responseChatId}`);
 
@@ -113,7 +116,7 @@ const ChatSection = (): React.JSX.Element => {
 
       setInput("");
 
-      // sessionStorage.setItem("latestUserInput", JSON.stringify({ role: "user", message: input }));
+      sessionStorage.setItem("latestUserInput", JSON.stringify({ role: "user", message: input }));
 
       router.push(`/chat/${chatId}`)
 
@@ -135,6 +138,32 @@ const ChatSection = (): React.JSX.Element => {
     chatEndRef?.current?.scrollIntoView({ behavior: "smooth" })
 
   }, [messages])
+
+  useEffect(() => {
+
+    if(!uploadedDocId) return;
+
+    console.log("Document Uploaded Successfully");
+
+    const run = async(): Promise<void> => {
+
+      try {
+        
+        await _addMessageToDB({uploadedDocId,role: "system",message: "Document Uploaded"});
+
+      } catch (error) {
+
+        console.log(error);
+        
+      }
+
+    }
+
+    run();
+
+
+
+  }, [uploadedDocId])
 
   return (
 

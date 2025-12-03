@@ -49,10 +49,10 @@ const SidebarContent = (): React.JSX.Element => {
 
       const response = await chatService.uploadFileToBackend(formData);
 
-      console.log("The response we are getting from uploading file is", response);
+      // console.log("The response we are getting from uploading file is", response);
       const eventId = response?.data?.data?.id;
 
-      console.log("The event id we are getting from uploading file is", eventId);
+      // console.log("The event id we are getting from uploading file is", eventId);
 
 
       // if(!response?.data?.success){
@@ -69,7 +69,7 @@ const SidebarContent = (): React.JSX.Element => {
 
         const documentId = await UserService.getUploadedDocId(eventId);
 
-        console.log("The response i am getting from uploaded doc id", documentId);
+        // console.log("The response i am getting from uploaded doc id", documentId);
 
         setUploadedDocId(documentId?.toString() as string);
 
@@ -140,7 +140,7 @@ const SidebarContent = (): React.JSX.Element => {
 
   })
 
-  console.log("The data we are getting from tanstack query function is", data)
+  // console.log("The data we are getting from tanstack query function is", data)
 
 
   return (
